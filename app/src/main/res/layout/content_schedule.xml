@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:id="@+id/schedule_week"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_hour"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/margin_week_day_card"
+            android:layout_marginBottom="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorPrimaryDark"
+            android:layout_weight="4">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_monday"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorAccent"
+            android:layout_weight="10">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_tuesday"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorAccent"
+            android:layout_weight="10">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_wednesday"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorAccent"
+            android:layout_weight="10">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_thursday"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorAccent"
+            android:layout_weight="10">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+        <com.nablanet.aula31.views.DayScheduleView
+            android:id="@+id/schedule_friday"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_week_day_card"
+            app:cardBackgroundColor="@color/colorAccent"
+            android:layout_weight="10">
+        </com.nablanet.aula31.views.DayScheduleView>
+
+
+    </LinearLayout>
+
+
+
+</merge>

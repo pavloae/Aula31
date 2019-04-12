@@ -1,0 +1,14 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="icon_top_margin">24dp</dimen>
+    <dimen name="icon_bottom_margin">24dp</dimen>
+    <dimen name="title_bottom_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="margin_week_day_card">1dp</dimen>
+    <dimen name="subject_font_size">10sp</dimen>
+    <dimen name="week_day_font_size">12sp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="date_bar">48dp</dimen>
+</resources>

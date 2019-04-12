@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal" >
+
+    <RelativeLayout
+        android:id="@+id/member_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toLeftOf="@+id/absent_ib"
+        android:layout_toStartOf="@+id/absent_ib">
+
+        <ImageView
+            android:id="@+id/picture_iv"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/ic_subject_color"
+            android:contentDescription="@string/user_image" />
+
+        <TextView
+            android:id="@+id/lastname_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:hint="@string/lastname"
+            tools:ignore="UnknownIdInLayout"
+            android:layout_toRightOf="@+id/picture_iv"
+            android:layout_toEndOf="@+id/picture_iv"/>
+
+        <TextView
+            android:id="@+id/names_tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:hint="@string/names"
+            android:lines="2"
+            android:textAppearance="?attr/textAppearanceListItem"
+            tools:ignore="UnknownIdInLayout"
+            android:layout_toRightOf="@+id/picture_iv"
+            android:layout_toEndOf="@+id/picture_iv"
+            android:layout_below="@+id/lastname_tv"/>
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/absent_ib"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_absent_gray"
+        tools:ignore="ContentDescription"
+        android:layout_toLeftOf="@+id/present_ib"
+        android:layout_toStartOf="@+id/present_ib"
+        android:layout_centerVertical="true"/>
+
+    <ImageButton
+        android:id="@+id/present_ib"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_present_gray"
+        tools:ignore="ContentDescription"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>

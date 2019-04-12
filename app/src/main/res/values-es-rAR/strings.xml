@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pupi3</string>
+    <string name="title_course_activity">Lista de cursos</string>
+    <string name="action_settings">Configuraciones</string>
+</resources>

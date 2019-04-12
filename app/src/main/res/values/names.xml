@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="classroom_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+        <item>D</item>
+        <item>E</item>
+        <item>F</item>
+    </string-array>
+
+    <string-array name="shifts_array">
+        <item>Mañana</item>
+        <item>Tarde</item>
+        <item>Noche</item>
+    </string-array>
+
+    <string-array name="states_array">
+        <item>Buenos Aires (provincia)</item>
+        <item>Buenos Aires (CABA)</item>
+        <item>Catamarca</item>
+        <item>Chaco</item>
+        <item>Chubut</item>
+        <item>Córdoba</item>
+        <item>Corrientes</item>
+        <item>Entre Ríos</item>
+        <item>Formosa</item>
+        <item>Jujuy</item>
+        <item>La Pampa</item>
+        <item>La Rioja</item>
+        <item>Mendoza</item>
+        <item>Misiones</item>
+        <item>Neuquén</item>
+        <item>Río Negro</item>
+        <item>Salta</item>
+        <item>San Juan</item>
+        <item>San Luis</item>
+        <item>Santa Cruz</item>
+        <item>Santa Fe</item>
+        <item>Santiago del Estero</item>
+        <item>Tierra del Fuego</item>
+        <item>Tucumán</item>
+    </string-array>
+
+    <string-array name="type_array">
+        <item>Educación técnico profesional</item>
+        <item>Educación artística</item>
+        <item>Educación especial</item>
+        <item>Educación permanente de jóvenes y adultos</item>
+        <item>Educación rural</item>
+        <item>Educación intercultural bilingüe</item>
+        <item>Educación domiciliaria y hospitalaria</item>
+        <item>Educación en contextos de encierro</item>
+    </string-array>
+
+    <string-array name="neuquen">
+        <item>Junín de los Andes</item>
+        <item>Neuquén</item>
+        <item>San Martín de los Andes</item>
+        <item>Villa la Angostura</item>
+        <item>Zapala</item>
+    </string-array>
+
+</resources>
