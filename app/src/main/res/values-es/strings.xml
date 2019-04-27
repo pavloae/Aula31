@@ -27,8 +27,12 @@
     <string name="resend_phone_auth">Reenviar</string>
     <string name="phone_title_text">Número de teléfono</string>
     <string name="nombre_alumno">Nombres</string>
-    <string name="lastame">APELLIDO</string>
+    <string name="lastname">APELLIDO</string>
     <string name="present_on">PRESENTE</string>
     <string name="present_off">AUSENTE</string>
     <string name="present">ASISTENCIA</string>
+    <string name="about">Acerca de Pupi3</string>
+    <string name="help">Ayuda</string>
+    <string name="add_class">Agregar clase...</string>
+    <string name="comments">Comentarios de la clase...</string>
 </resources>

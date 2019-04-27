@@ -14,6 +14,7 @@ public class Membership {
     public static final int REJECTED = 0;
     public static final int PENDING = 1;
     public static final int ACCEPTED = 2;
+    public static final int EXPULSED = 3;
 
     /**
      * Role of member on course {@link #course_id}

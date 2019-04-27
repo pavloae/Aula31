@@ -21,8 +21,8 @@
 
     <ImageView
         android:id="@+id/image_user"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         app:srcCompat="@drawable/ic_subject_color"
@@ -35,9 +35,11 @@
         android:layout_height="32dp"
         android:layout_toRightOf="@id/image_user"
         android:layout_toEndOf="@id/image_user"
+        android:layout_toLeftOf="@+id/edit_profile_ib"
         android:layout_marginTop="18dp"
         android:textSize="24sp"
-        android:hint="@string/lastname"/>
+        android:hint="@string/lastname"
+        android:layout_toStartOf="@+id/edit_profile_ib" />
 
     <TextView
         android:id="@+id/names"
@@ -70,8 +72,8 @@
         android:textSize="18sp"
         android:layout_marginLeft="18dp"
         android:layout_marginRight="18dp"
-        android:hint="Comments..."
-        android:inputType="textCapSentences"
+        android:hint="@string/comments"
+        android:inputType="textMultiLine|textCapSentences"
         tools:ignore="Autofill" />
 
     <com.nablanet.aula31.views.RatingPersonView

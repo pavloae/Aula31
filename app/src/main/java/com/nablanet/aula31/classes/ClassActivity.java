@@ -1,8 +1,10 @@
 package com.nablanet.aula31.classes;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseError;
 import com.nablanet.aula31.R;
@@ -85,6 +88,7 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.view_button:
                 layoutType = (recyclerView.getLayoutType() == ClassRecyclerView.LIST) ?
@@ -150,6 +154,31 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public boolean onItemLongClick(final ClassDay.Member member) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(member.lastname);
+        builder.setItems(
+                new String[]{"Borrar de la clase", "Borrar del curso"},
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                classViewModel.deleteMemberClass(member);
+                                break;
+                            case 1:
+                                classViewModel.deleteMemberFromCourse(course.id, member.id);
+                                break;
+                                default:
+                        }
+
+                    }
+                }
+        );
+
+        builder.show();
+
         return true;
     }
 
@@ -166,6 +195,8 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
         Bundle bundle = new Bundle();
         bundle.putString(MemberTrackActivity.COURSE_ID_KEY, course.id);
         bundle.putString(MemberTrackActivity.MEMBER_ID_KEY, member.id);
+        bundle.putString(MemberTrackActivity.LASTNAME_KEY, member.lastname);
+        bundle.putString(MemberTrackActivity.NAMES_KEY, member.names);
         bundle.putString(MemberTrackActivity.CLASS_ID_KEY, classDay.id);
 
         startActivity(new Intent(this, MemberTrackActivity.class).putExtras(bundle));
@@ -194,6 +225,34 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
                 if (databaseError != null)
                     Snackbar.make(toolbar, databaseError.getMessage(), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+            }
+        });
+        classViewModel.getSuccessMutableLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                if (integer == null) return;
+                String message;
+                switch (integer) {
+                    case ClassViewModel.MEMBER_CREATED:
+                        message = "Miembro creado";
+                        break;
+                    case ClassViewModel.MEMBER_EDITED:
+                        message = "Miembro cambiado";
+                        break;
+                        default:
+                            message = "";
+
+                }
+                Toast.makeText(ClassActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+        classViewModel.getDbResultLiveData().observe(this, new Observer<DBResult>() {
+            @Override
+            public void onChanged(@Nullable DBResult dbResult) {
+                if (dbResult != null)
+                    Toast.makeText(
+                            ClassActivity.this, dbResult.message, Toast.LENGTH_SHORT
+                    ).show();
             }
         });
     }

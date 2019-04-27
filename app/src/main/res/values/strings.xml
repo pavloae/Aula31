@@ -73,5 +73,9 @@
     <string name="present_on">PRESENT</string>
     <string name="present_off">ABSENT</string>
     <string name="add_class">Add class…</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
+    <string name="title_activity_export">ExportActivity</string>
+    <string name="comments">Comments...</string>
 
 </resources>

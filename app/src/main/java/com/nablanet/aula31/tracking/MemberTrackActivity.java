@@ -27,6 +27,8 @@ public class MemberTrackActivity extends AppCompatActivity {
     public static final String COURSE_ID_KEY = "course_id_key";
     public static final String MEMBER_ID_KEY = "member_id_key";
     public static final String CLASS_ID_KEY = "class_id_key";
+    public static final String LASTNAME_KEY = "lastname_key";
+    public static final String NAMES_KEY = "names_key";
 
     SoundPool soundPool;
     int oneStar, twoStar, threeStar, fourStar, fiveStar;
@@ -59,6 +61,9 @@ public class MemberTrackActivity extends AppCompatActivity {
         memberId = getIntent().getExtras().getString(MEMBER_ID_KEY);
         classId = getIntent().getExtras().getString(CLASS_ID_KEY);
         courseId = getIntent().getExtras().getString(COURSE_ID_KEY);
+
+        lastname.setText(getIntent().getExtras().getString(LASTNAME_KEY, ""));
+        names.setText(getIntent().getExtras().getString(NAMES_KEY, ""));
 
         if (TextUtils.isEmpty(userId) || TextUtils.isEmpty(memberId) || TextUtils.isEmpty(classId)){
             finish();

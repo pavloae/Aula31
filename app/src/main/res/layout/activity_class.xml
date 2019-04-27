@@ -26,7 +26,6 @@
         android:id="@+id/teacher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         style="@style/AppBaseTheme">
 
         <RelativeLayout
@@ -60,9 +59,7 @@
                     android:id="@+id/member_rl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_toLeftOf="@+id/absent_ib"
-                    android:layout_toStartOf="@+id/absent_ib">
+                    android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/picture_iv"

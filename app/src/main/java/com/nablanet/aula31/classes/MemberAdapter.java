@@ -178,7 +178,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
 
         @Override
         public boolean onLongClick(View v) {
-            return true;
+            return onMemberListener.onItemLongClick(member);
         }
 
     }

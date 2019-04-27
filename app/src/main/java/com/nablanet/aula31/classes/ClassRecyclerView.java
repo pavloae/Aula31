@@ -53,7 +53,6 @@ public class ClassRecyclerView extends RecyclerView {
         gridLayoutManager.setSpanCount(layoutType);
         if (memberAdapter != null)
             memberAdapter.setGrid(layoutType);
-
     }
 
     public int getLayoutType(){

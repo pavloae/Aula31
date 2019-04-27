@@ -103,6 +103,10 @@ public class Course {
 
     public static class Member {
 
+        @Exclude public static final int INACTIVE = 0;
+        @Exclude public static final int PENDING = 1;
+        @Exclude public static final int ACTIVE = 2;
+
         @Exclude
         public String id;
 

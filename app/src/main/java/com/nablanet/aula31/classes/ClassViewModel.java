@@ -7,12 +7,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.repo.FireBaseRepo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,19 +27,31 @@ import java.util.Map;
 public class ClassViewModel extends ViewModel {
 
     public static final int MEMBER_CREATED = 0;
+    public static final int MEMBER_EDITED = 1;
+    public static final int MEMBER_DELETED = 2;
 
     private MutableLiveData<Course> courseMutableLiveData;
     private MutableLiveData<ClassDay> classMutableLiveData;
 
     private MutableLiveData<List<ClassDay>> classDayListMutableLiveData;
 
-    private MutableLiveData<DatabaseError> databaseErrorMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<DatabaseError> databaseErrorMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Integer> successMutableLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<DBResult> dbResultMutableLiveData = new MutableLiveData<>();
+
+    FireBaseRepo fireBaseRepo = new FireBaseRepo();
+
     LiveData<DatabaseError> getDatabaseError() {
-        if (databaseErrorMutableLiveData == null)
-            databaseErrorMutableLiveData = new MutableLiveData<>();
         return databaseErrorMutableLiveData;
+    }
+
+    LiveData<Integer> getSuccessMutableLiveData() {
+        return successMutableLiveData;
+    }
+
+    LiveData<DBResult> getDbResultLiveData() {
+        return dbResultMutableLiveData;
     }
 
     @NonNull
@@ -136,6 +151,11 @@ public class ClassViewModel extends ViewModel {
 
     }
 
+    /** Agregamos un nuevo miembro al curso y generamos una entrada en la lista de seguimientos
+     *  para ir registrandolo en las siguientes clases
+     *
+     * @param member Un objeto con los datos del nuevo miembro
+     */
     void saveMemberToCourse(Course.Member member) {
 
         Course course = getCourseLiveData(null).getValue();
@@ -175,7 +195,7 @@ public class ClassViewModel extends ViewModel {
     }
 
     private void loadCourse(@NonNull String courseId) {
-        FirebaseDatabase.getInstance().getReference("courses").child(courseId)
+        fireBaseRepo.getCourse(courseId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -217,16 +237,42 @@ public class ClassViewModel extends ViewModel {
                                 return o2.getDate().compareTo(o1.getDate());
                             }
                         });
+                        Collections.reverse(classDays);
 
                         getClassDayListLiveData().setValue(classDays);
 
-                        if (classDays.size() > 0) setCurrentClass(classDays.get(0));
+                        if (classDays.size() > 0) setCurrentClass(classDays.get(classDays.size() - 1));
 
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         databaseErrorMutableLiveData.setValue(databaseError);
+                    }
+
+                });
+    }
+
+    void deleteMemberClass(ClassDay.Member member) {
+
+    }
+
+    void deleteMemberFromCourse(String courseId, String memberId) {
+        fireBaseRepo.deleteMemberFromCourse(courseId, memberId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        dbResultMutableLiveData.setValue(
+                                new DBResult(true, "Borrado")
+                        );
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dbResultMutableLiveData.setValue(
+                                new DBResult(false, e.getMessage())
+                        );
                     }
                 });
     }

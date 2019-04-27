@@ -12,8 +12,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.nablanet.aula31.courses.CourseActivity;
-import com.nablanet.aula31.classes.ClassActivity;
-import com.nablanet.aula31.schedules.ScheduleActivity;
+import com.nablanet.aula31.export.ExportActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,11 +50,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.btn_edit:
-                break;
-            case R.id.btn_save:
-                break;
             case R.id.btn_help:
+                break;
+            case R.id.btn_about:
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -71,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.button0: intent = new Intent(this, UserActivity.class); break;
             case R.id.button1: intent = new Intent(this, CourseActivity.class); break;
-            case R.id.button2:
+            case R.id.button2: intent = new Intent(this, ExportActivity.class); break;
             case R.id.button3:
                 Toast.makeText(this, "En producción...", Toast.LENGTH_SHORT).show();
         }
@@ -80,4 +77,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
 
     }
+
+    private void createODS() {
+
+    }
+
 }
