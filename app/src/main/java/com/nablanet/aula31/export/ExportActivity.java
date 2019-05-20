@@ -7,8 +7,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.nablanet.aula31.R;
-import com.nablanet.documents.Document;
 import com.nablanet.aula31.utils.Util;
+import com.nablanet.documents.utils.FileManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +32,8 @@ public class ExportActivity extends AppCompatActivity {
                 File target = new File(getExternalCacheDir(), "tracking_cache.ods");
 
                 try {
-                    Document.copyInputStreamToFile(getAssets().open(templateName), target);
-                    Document.unzip(target);
+                    FileManager.createFile(getAssets().open(templateName), target);
+                    //ZipManager.unzip(target);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -2,6 +2,7 @@ package com.nablanet.documents;
 
 import org.w3c.dom.Document;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -22,6 +23,7 @@ public class Parser {
 
     public static Document parseXMLFile(File file) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
         Document document = null;
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -37,27 +39,27 @@ public class Parser {
         return document;
     }
 
-    public static Node getBody(Document document) {
+    public static Element getBody(Document document) {
         Node child = document.getDocumentElement().getFirstChild();
         while (child != null) {
             if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals("office:body"))
-                return child;
+                return (Element) child;
             child = child.getNextSibling();
         }
         return null;
     }
 
-    public static Node getSpreedSheet(Node body) {
+    public static Element getSpreedSheet(Element body) {
         Node child = body.getFirstChild();
         while (child != null) {
             if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals("office:spreadsheet"))
-                return child;
+                return (Element) child;
             child = child.getNextSibling();
         }
         return null;
     }
 
-    public static Node getSheet(Node spreadsheet, String sheetName) {
+    public static Element getSheet(Element spreadsheet, String sheetName) {
         Node child = spreadsheet.getFirstChild();
         do {
             if (child == null)
@@ -76,7 +78,7 @@ public class Parser {
                     !attr.getNodeValue().equals(sheetName))
                 continue;
 
-            return child;
+            return (Element) child;
         } while (child != null && (child = child.getNextSibling()) != null);
         return null;
     }
