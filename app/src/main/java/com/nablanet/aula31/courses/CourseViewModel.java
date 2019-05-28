@@ -7,12 +7,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nablanet.aula31.courses.entity.CourseProfileExt;
+import com.nablanet.aula31.repo.FireBaseRepo;
+import com.nablanet.aula31.repo.Response;
+import com.nablanet.aula31.repo.entity.Membership;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,17 +30,19 @@ public class CourseViewModel extends ViewModel {
     static final int COURSE_SAVED = 0;
     static final int COURSE_UPDATED = 1;
 
-    private MutableLiveData<Course.Profile> selectedCourseProfileMutableLiveData;
-    private MutableLiveData<List<Membership>> membershipsMapMutableLiveData;
-    private MutableLiveData<DatabaseError> databaseErrorMutableLiveData;
-    private MutableLiveData<Integer> successMutableLiveData;
+    FireBaseRepo fireBaseRepo = FireBaseRepo.getInstance();
 
-    LiveData<Course.Profile> getSelectedCourseProfile() {
+    private MutableLiveData<CourseProfileExt> selectedCourseProfileMutableLiveData;
+    private MutableLiveData<List<Membership>> membershipsMapMutableLiveData;
+
+    private MutableLiveData<Response> responseMutableLiveData = new MutableLiveData<>();
+
+    LiveData<CourseProfileExt> getSelectedCourseProfile() {
         if (selectedCourseProfileMutableLiveData == null) selectedCourseProfileMutableLiveData = new MutableLiveData<>();
         return selectedCourseProfileMutableLiveData;
     }
 
-    LiveData<List<Membership>> getMemberships() {
+    LiveData<List<Membership>> getMembershipList() {
         if (membershipsMapMutableLiveData == null) {
             membershipsMapMutableLiveData = new MutableLiveData<>();
             loadUserMemberships();
@@ -42,35 +50,53 @@ public class CourseViewModel extends ViewModel {
         return membershipsMapMutableLiveData;
     }
 
-    LiveData<DatabaseError> getDatabaseError() {
-        if (databaseErrorMutableLiveData == null)
-            databaseErrorMutableLiveData = new MutableLiveData<>();
-        return databaseErrorMutableLiveData;
+    LiveData<Response> getResponseLiveData() {
+        return responseMutableLiveData;
     }
 
-    LiveData<Integer> getSuccessMutableLiveData() {
-        if (successMutableLiveData == null)
-            successMutableLiveData = new MutableLiveData<>();
-        return successMutableLiveData;
+    private void loadUserMemberships() {
+        fireBaseRepo.getOwnMemberships().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Membership> membershipList = new ArrayList<>();
+                Membership membership;
+                for (DataSnapshot data : dataSnapshot.getChildren()){
+                    membership = data.getValue(Membership.class);
+                    if (membership == null) continue;
+                    membership.membership_id = data.getKey();
+                    membershipList.add(membership);
+                }
+                membershipsMapMutableLiveData.setValue(membershipList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                responseMutableLiveData.setValue(
+                        new Response(false, databaseError.getMessage())
+                );
+            }
+        });
     }
 
     void loadCourseProfile(@Nullable final String courseId) {
         if (TextUtils.isEmpty(courseId))
-            selectedCourseProfileMutableLiveData.setValue(new Course.Profile());
+            selectedCourseProfileMutableLiveData.setValue(new CourseProfileExt());
         else {
             FirebaseDatabase.getInstance().getReference("courses").child(courseId).child("profile")
                     .addListenerForSingleValueEvent(
                             new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    Course.Profile profile = dataSnapshot.getValue(Course.Profile.class);
-                                    if (profile != null) profile.courseId = courseId;
-                                        selectedCourseProfileMutableLiveData.setValue(profile);
+                                    CourseProfileExt courseProfile = dataSnapshot.getValue(CourseProfileExt.class);
+                                    if (courseProfile != null) courseProfile.course_id = courseId;
+                                        selectedCourseProfileMutableLiveData.setValue(courseProfile);
                                 }
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    databaseErrorMutableLiveData.setValue(databaseError);
+                                    responseMutableLiveData.setValue(
+                                            new Response(false, databaseError.getMessage())
+                                    );
                                 }
                             }
                     );
@@ -78,71 +104,71 @@ public class CourseViewModel extends ViewModel {
     }
 
     void leaveCourse(Membership membership) {
-        FirebaseDatabase.getInstance().getReference("memberships").child(membership.id)
+        FirebaseDatabase.getInstance().getReference("memberships").child(membership.membership_id)
                 .setValue(null, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(@Nullable DatabaseError databaseError,
                                            @NonNull DatabaseReference databaseReference) {
                         if (databaseError != null)
-                            databaseErrorMutableLiveData.setValue(databaseError);
+                            responseMutableLiveData.setValue(
+                                    new Response(false, databaseError.getMessage())
+                            );
                     }
                 });
     }
 
     /**
      * Método llamado para crear un curso nuevo a partir de las características indicadas
-     * @param courseProfile Características del nuevo curso
+     * @param courseProfileExt Características del nuevo curso
      */
-    void saveCourse(final Course.Profile courseProfile) {
+    void saveCourse(final CourseProfileExt courseProfileExt) {
 
-        DatabaseReference courseRef = FirebaseDatabase.getInstance().getReference()
-                .child("courses").push();
-
-        Course course = new Course();
-        course.profile = courseProfile;
-        course.profile.courseId = courseRef.getKey();
-
-        courseRef.setValue(course, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(
-                    @Nullable DatabaseError databaseError,
-                    @NonNull DatabaseReference databaseReference
-            ) {
-                if (databaseError != null)
-                    databaseErrorMutableLiveData.setValue(databaseError);
-                else
-                    createOwnerMembership(courseProfile);
-
-            }
-        });
+        fireBaseRepo.saveNewCourse(courseProfileExt)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        createOwnerMembership(courseProfileExt);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        responseMutableLiveData.setValue(
+                                new Response(false, e.getMessage())
+                        );
+                    }
+                });
     }
 
-    private void createOwnerMembership(Course.Profile profile) {
+    private void createOwnerMembership(CourseProfileExt courseProfile) {
         Membership membership = new Membership();
         membership.user_id = FirebaseAuth.getInstance().getUid();
-        membership.course_id = profile.courseId;
-        membership.institution_name = profile.getInstitutionName();
-        membership.course_name = profile.getCourseName();
+        membership.course_id = courseProfile.course_id;
+        membership.course_name = courseProfile.getCourseName();
+        membership.institution_name = courseProfile.getInstitutionName();
         membership.role = Membership.TEACHER;
         membership.state = Membership.ACCEPTED;
 
-        FirebaseDatabase.getInstance().getReference("memberships").push()
-                .setValue(membership, new DatabaseReference.CompletionListener() {
+        fireBaseRepo.createMembership(membership)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(
-                            @Nullable DatabaseError databaseError,
-                            @NonNull DatabaseReference databaseReference
-                    ) {
-                        if (databaseError != null)
-                            databaseErrorMutableLiveData.setValue(databaseError);
-                        else
-                            successMutableLiveData.setValue(COURSE_SAVED);
+                    public void onSuccess(Void aVoid) {
+                        responseMutableLiveData.setValue(
+                                new Response(true, COURSE_SAVED, "")
+                        );
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        responseMutableLiveData.setValue(
+                                new Response(false, e.getMessage())
+                        );
                     }
                 });
-
     }
 
-    void updateCourseProfile(final String courseKey, final Course.Profile courseProfile) {
+    void updateCourseProfile(final String courseKey, final CourseProfileExt courseProfileExt) {
 
         FirebaseDatabase.getInstance().getReference("memberships")
                 .orderByChild("course_id").equalTo(courseKey).limitToFirst(50)
@@ -153,25 +179,27 @@ public class CourseViewModel extends ViewModel {
                         for (DataSnapshot data : dataSnapshot.getChildren())
                             membershipMap.put(data.getKey(), data.getValue(Membership.class));
 
-                        courseProfile.courseId = courseKey;
-                        updateChilds(courseProfile, membershipMap);
+                        courseProfileExt.course_id = courseKey;
+                        updateChilds(courseProfileExt, membershipMap);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        databaseErrorMutableLiveData.setValue(databaseError);
+                        responseMutableLiveData.setValue(
+                                new Response(false, databaseError.getMessage())
+                        );
                     }
                 });
     }
 
-    private void updateChilds(Course.Profile courseProfile, Map<String, Membership> membershipMap) {
+    private void updateChilds(CourseProfileExt courseProfileExt, Map<String, Membership> membershipMap) {
 
         Map<String, Object> childsUpdate = new HashMap<>();
-        childsUpdate.put("/courses/" + courseProfile.courseId + "/profile", courseProfile.toMap());
+        childsUpdate.put("/courses/" + courseProfileExt.course_id + "/profile", courseProfileExt.toMap());
 
         for (String key : membershipMap.keySet()){
-            membershipMap.get(key).institution_name = courseProfile.getInstitutionName();
-            membershipMap.get(key).course_name = courseProfile.getCourseName();
+            membershipMap.get(key).institution_name = courseProfileExt.getInstitutionName();
+            membershipMap.get(key).course_name = courseProfileExt.getCourseName();
             childsUpdate.put("memberships/" + key, membershipMap.get(key).toMap());
         }
 
@@ -182,39 +210,18 @@ public class CourseViewModel extends ViewModel {
                             @Nullable DatabaseError databaseError,
                             @NonNull DatabaseReference databaseReference) {
                         if (databaseError != null)
-                            databaseErrorMutableLiveData.setValue(databaseError);
+                            responseMutableLiveData.setValue(
+                                    new Response(false, databaseError.getMessage())
+                            );
                         else
-                            successMutableLiveData.setValue(COURSE_UPDATED);
+                            responseMutableLiveData.setValue(
+                                    new Response(true, COURSE_UPDATED, "")
+                            );
 
                     }
                 }
         );
 
-    }
-
-    private void loadUserMemberships() {
-        FirebaseDatabase.getInstance().getReference("memberships")
-                .orderByChild("user_id").equalTo(FirebaseAuth.getInstance().getUid()).limitToFirst(100)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        List<Membership> membershipList = new ArrayList<>();
-                        Membership membership;
-                        for (DataSnapshot data : dataSnapshot.getChildren()){
-                            membership = data.getValue(Membership.class);
-                            if (membership == null) continue;
-                            membership.id = data.getKey();
-                            membershipList.add(membership);
-
-                        }
-                        membershipsMapMutableLiveData.setValue(membershipList);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        databaseErrorMutableLiveData.setValue(databaseError);
-                    }
-                });
     }
 
 }

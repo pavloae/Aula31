@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 
 import javax.xml.transform.TransformerException;
@@ -24,41 +25,50 @@ public class TemplateODS {
 
     public static final String MODEL = "tracking.ods";
 
-    File template, extractFolder, contentFile, metaFile;
-    Document contentDoc, metaDoc;
-    public Body body;
+    File template, target, extractFolder, contentFile/*, metaFile*/;
+    Document contentDoc/*, metaDoc*/;
+    private Body body;
 
-    public TemplateODS() {
-        this.template = FileManager.getFile(MODEL);
-        this.body = getBody();
+
+    /**
+     * @param target Un archivo en el que se pueda escribir el resultado del documento.
+     */
+    public TemplateODS(File target) {
+        this.target = target;
     }
 
-    public File saveTo(String name) {
-        File target = new File(template.getParent(), name);
-        try {
-            Parser.saveDoc(getContentDoc(), contentFile);
-            Parser.saveDoc(getMetaDoc(), metaFile);
-            ZipManager.zipODF(extractFolder, target);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-        return target;
+    public void save() throws TransformerException, IOException {
+        Parser.saveDoc(getContentDoc(), contentFile);
+        //Parser.saveDoc(getMetaDoc(), metaFile);
+        ZipManager.zipODF(extractFolder, target);
     }
 
-    private Body getBody() {
+    public Body getBody() throws XPathExpressionException {
+        if (body != null) return body;
         XPath xPath = XPathFactory.newInstance().newXPath();
         xPath.setNamespaceContext(new NameSpaceResolver(getContentDoc()));
-        try {
-            Node node = (Node) xPath.evaluate(
-                    "/office:document-content/office:body", getContentDoc(), XPathConstants.NODE
-            );
-            return new Body((Element) node);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-        }
-        return null;
+        Node node = (Node) xPath.evaluate(
+                "/office:document-content/office:body", getContentDoc(), XPathConstants.NODE
+        );
+        body = new Body((Element) node);
+        return body;
+    }
+
+    private File getTemplate() throws IOException {
+        if (template == null)
+            createTemplate();
+        return template;
+    }
+
+    /**
+     * Obtenemos un InputStream al recurso con la plantilla y creamos el archivo en el directorio
+     * donde se guardará el archivo final
+     * @throws IOException Si no se puede crear el archivo
+     */
+    private void createTemplate() throws IOException {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(MODEL);
+        this.template = new File(target.getParentFile(), MODEL);
+        FileManager.createFile(inputStream, this.template);
     }
 
     public Document getContentDoc() {
@@ -67,28 +77,16 @@ public class TemplateODS {
         return contentDoc;
     }
 
-    private Document getMetaDoc() {
-        if (metaDoc == null)
-            metaDoc = Parser.parseXMLFile(getMetaFile());
-        return metaDoc;
-    }
-
     public File getContentFile() {
         if (contentFile == null)
             extractContentFile();
         return contentFile;
     }
 
-    private File getMetaFile() {
-        if (metaFile == null)
-            extractMetaFile();
-        return metaFile;
-    }
-
     private void extractContentFile() {
         try {
             if (extractFolder == null || !extractFolder.exists())
-                extractFolder = ZipManager.unzip(template, null);
+                extractFolder = ZipManager.unzip(getTemplate(), null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,6 +95,18 @@ public class TemplateODS {
                 contentFile = child;
                 return;
             }
+    }
+
+    /*private Document getMetaDoc() {
+        if (metaDoc == null)
+            metaDoc = Parser.parseXMLFile(getMetaFile());
+        return metaDoc;
+    }
+
+    private File getMetaFile() {
+        if (metaFile == null)
+            extractMetaFile();
+        return metaFile;
     }
 
     private void extractMetaFile() {
@@ -111,6 +121,6 @@ public class TemplateODS {
                 metaFile = child;
                 return;
             }
-    }
+    }*/
 
 }

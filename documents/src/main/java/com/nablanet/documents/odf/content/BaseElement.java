@@ -5,6 +5,7 @@ import com.nablanet.documents.NameSpaceResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.management.modelmbean.XMLParseException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 

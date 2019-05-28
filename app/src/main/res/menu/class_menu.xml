@@ -21,4 +21,10 @@
         android:icon="@android:drawable/ic_menu_sort_by_size"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/export"
+        android:title="@string/export"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        app:showAsAction="never" />
+
 </menu>

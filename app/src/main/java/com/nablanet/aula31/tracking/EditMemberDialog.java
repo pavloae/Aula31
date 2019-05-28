@@ -17,16 +17,17 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.nablanet.aula31.R;
+import com.nablanet.aula31.repo.entity.Profile;
 
 public class EditMemberDialog extends DialogFragment {
 
     TrackingViewModel trackingViewModel;
     EditText lastnameET, namesET;
     String courseId, memberId;
-    MemberTrack.Profile profile;
+    Profile profile;
 
     public static EditMemberDialog getInstance(
-            String courseId, String memberId, MemberTrack.Profile profile
+            String courseId, String memberId, Profile profile
     ) {
         EditMemberDialog editMemberDialog = new EditMemberDialog();
         editMemberDialog.courseId = courseId;
@@ -107,14 +108,14 @@ public class EditMemberDialog extends DialogFragment {
         );
     }
 
-    private MemberTrack buildMember() {
-        MemberTrack memberTrack = new MemberTrack();
-        memberTrack.course_id = courseId;
-        memberTrack.id = memberId;
+    private MemberTracks buildMember() {
+        MemberTracks memberTracks = new MemberTracks();
+        memberTracks.course_id = courseId;
+        memberTracks.id = memberId;
         profile.lastname = lastnameET.getText().toString();
         profile.names = namesET.getText().toString();
-        memberTrack.profile = profile;
-        return memberTrack;
+        memberTracks.profile = profile;
+        return memberTracks;
     }
 
 }

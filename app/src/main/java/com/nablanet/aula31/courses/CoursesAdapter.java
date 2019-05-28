@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.nablanet.aula31.OnItemListener;
 import com.nablanet.aula31.R;
+import com.nablanet.aula31.repo.entity.Membership;
 
 import java.util.List;
 

@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/btn_search"
+        android:title="Search Course"
+        android:icon="@android:drawable/ic_search_category_default"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/btn_new"
         android:title="New Course"
         android:icon="@android:drawable/ic_input_add"

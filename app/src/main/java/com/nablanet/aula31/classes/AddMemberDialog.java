@@ -17,8 +17,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.courses.Course;
-import com.nablanet.aula31.courses.Membership;
+import com.nablanet.aula31.classes.entity.MemberItem;
+import com.nablanet.aula31.repo.entity.Membership;
 
 public class AddMemberDialog extends DialogFragment {
 
@@ -113,13 +113,13 @@ public class AddMemberDialog extends DialogFragment {
         );
     }
 
-    private Course.Member buildMember() {
-        Course.Member member = new Course.Member();
-        member.lastname = lastnameET.getText().toString();
-        member.names = namesET.getText().toString();
-        member.role = Membership.STUDENT;
-        member.state = Membership.ACCEPTED;
-        return member;
+    private MemberItem buildMember() {
+        MemberItem memberItem = new MemberItem();
+        memberItem.setLastname(lastnameET.getText().toString());
+        memberItem.setNames(namesET.getText().toString());
+        memberItem.setRole(Membership.STUDENT);
+        memberItem.setState(Membership.ACCEPTED);
+        return memberItem;
     }
 
     private void cleanDialog() {

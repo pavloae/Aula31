@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.nablanet.aula31.OnItemListener;
 import com.nablanet.aula31.classes.ClassActivity;
 import com.nablanet.aula31.R;
+import com.nablanet.aula31.repo.entity.Membership;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.List;
 public class CoursesListFragment extends Fragment implements OnItemListener<Membership> {
 
     CourseViewModel courseViewModel;
-
     RecyclerView recyclerView;
 
     public CoursesListFragment() {
@@ -49,7 +49,7 @@ public class CoursesListFragment extends Fragment implements OnItemListener<Memb
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         courseViewModel = ViewModelProviders.of(getActivity()).get(CourseViewModel.class);
-        courseViewModel.getMemberships().observe(this, new Observer<List<Membership>>() {
+        courseViewModel.getMembershipList().observe(this, new Observer<List<Membership>>() {
             @Override
             public void onChanged(@Nullable List<Membership> memberships) {
                 if (memberships == null) memberships = new ArrayList<>();
@@ -63,7 +63,7 @@ public class CoursesListFragment extends Fragment implements OnItemListener<Memb
         Intent intent = new Intent(getActivity(), ClassActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString(ClassActivity.COURSE_ID_KEY, membership.course_id);
-        bundle.putString(ClassActivity.MEMBER_ID_KEY, membership.id);
+        //bundle.putString(ClassActivity.MEMBER_ID_KEY, membership.membership_id);
         bundle.putString(ClassActivity.SUBJECT_KEY, membership.course_name);
         bundle.putString(ClassActivity.INSTITUTE_KEY, membership.institution_name);
         intent.putExtras(bundle);

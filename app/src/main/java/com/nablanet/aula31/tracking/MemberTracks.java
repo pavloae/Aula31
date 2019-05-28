@@ -1,16 +1,17 @@
 package com.nablanet.aula31.tracking;
 
 import com.google.firebase.database.Exclude;
+import com.nablanet.aula31.repo.entity.ClassTrack;
+import com.nablanet.aula31.repo.entity.Profile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MemberTrack {
+public class MemberTracks {
 
-    @Exclude
-    String id;
+    @Exclude String id;
 
     public String course_id;
     public Profile profile;
@@ -23,7 +24,7 @@ public class MemberTrack {
         ClassTrack classTrack;
         for (String classKey : classes.keySet()) {
             classTrack = classes.get(classKey);
-            classTrack.id = classKey;
+            classTrack.class_id = classKey;
             classTrackList.add(classTrack);
         }
         return classTrackList;
@@ -45,43 +46,6 @@ public class MemberTrack {
     }
 
 
-    public static class Profile {
-        public String url_image;
-        public String lastname;
-        public String names;
-    }
 
-    public static class ClassTrack {
-
-        @Exclude
-        String id;
-
-        public Long date;
-        public Map<String, Observation> observations;
-
-        @Exclude
-        public Observation getObservation(String userId) {
-            return (observations == null) ? null : observations.get(userId);
-        }
-
-    }
-
-    public static class Observation {
-
-        @Exclude
-        String id;
-
-        public Integer rate;
-        public String comment;
-
-        public Observation(){
-        }
-
-        public Observation(Integer rate, String comment) {
-            this.rate = rate;
-            this.comment = comment;
-        }
-
-    }
 
 }

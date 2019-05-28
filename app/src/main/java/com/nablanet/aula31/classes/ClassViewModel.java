@@ -1,7 +1,11 @@
 package com.nablanet.aula31.classes;
 
+import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,13 +17,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.classes.entity.MemberItem;
+import com.nablanet.aula31.repo.DataResult;
 import com.nablanet.aula31.repo.FireBaseRepo;
+import com.nablanet.aula31.repo.Response;
+import com.nablanet.aula31.repo.entity.Attendance;
+import com.nablanet.aula31.repo.entity.ClassDay;
+import com.nablanet.aula31.repo.entity.Member;
+import com.nablanet.aula31.utils.Util;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,148 +37,350 @@ public class ClassViewModel extends ViewModel {
     public static final int MEMBER_CREATED = 0;
     public static final int MEMBER_EDITED = 1;
     public static final int MEMBER_DELETED = 2;
+    public static final int CLASS_CREATED = 3;
+    public static final int CLASS_EDITED = 4;
+    public static final int CLASS_DELETED = 5;
 
-    private MutableLiveData<Course> courseMutableLiveData;
-    private MutableLiveData<ClassDay> classMutableLiveData;
+    FireBaseRepo fireBaseRepo = FireBaseRepo.getInstance();
 
-    private MutableLiveData<List<ClassDay>> classDayListMutableLiveData;
+    private final MutableLiveData<Response> responseMutableLiveData = new MutableLiveData<>();
 
-    private final MutableLiveData<DatabaseError> databaseErrorMutableLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Integer> successMutableLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> courseId;
 
-    private final MutableLiveData<DBResult> dbResultMutableLiveData = new MutableLiveData<>();
+    private MediatorLiveData<List<ClassDay>> classDayList;
+    private MutableLiveData<ClassDay> classDay;
 
-    FireBaseRepo fireBaseRepo = new FireBaseRepo();
+    private LiveData<Map<String, Member>> memberMap;
+    private LiveData<Map<String, Attendance>> attendanceMap;
 
-    LiveData<DatabaseError> getDatabaseError() {
-        return databaseErrorMutableLiveData;
-    }
+    private MediatorLiveData<List<MemberItem>> memberItemList;
+    private MutableLiveData<MemberItem> memberItem;
 
-    LiveData<Integer> getSuccessMutableLiveData() {
-        return successMutableLiveData;
-    }
-
-    LiveData<DBResult> getDbResultLiveData() {
-        return dbResultMutableLiveData;
+    @NonNull
+    LiveData<Response> getResponseLiveData() {
+        return responseMutableLiveData;
     }
 
     @NonNull
-    LiveData<Course> getCourseLiveData(@Nullable String courseId) {
-        if (courseMutableLiveData == null)
-            courseMutableLiveData = new MutableLiveData<>();
+    MutableLiveData<String> getCourseIdLiveData() {
+        if (courseId == null)
+            courseId = new MutableLiveData<>();
+        return courseId;
+    }
 
-        if (courseId != null)
-            loadCourse(courseId);
-
-        return courseMutableLiveData;
+    void setCourseId(String courseId) {
+        getCourseIdLiveData().setValue(courseId);
     }
 
     @NonNull
-    LiveData<ClassDay> getClassLiveData() {
-        if (classMutableLiveData == null){
-            classMutableLiveData = new MutableLiveData<>();
-            loadClasses();
+    LiveData<List<MemberItem>> getMemberItemList() {
+        if (memberItemList == null) {
+            memberItemList = new MediatorLiveData<>();
+            memberItemList.addSource(
+                    getMemberMap(), new Observer<Map<String, Member>>() {
+                        @Override
+                        public void onChanged(@Nullable Map<String, Member> memberMap) {
+                            memberItemList.setValue(
+                                    getMergeListClass(memberMap, getAttendanceMap().getValue())
+                            );
+                        }
+                    }
+            );
+            memberItemList.addSource(
+                    getAttendanceMap(), new Observer<Map<String, Attendance>>() {
+                        @Override
+                        public void onChanged(@Nullable Map<String, Attendance> attendanceMap) {
+                            memberItemList.setValue(
+                                    getMergeListClass(getMemberMap().getValue(), attendanceMap)
+                            );
+                        }
+                    }
+            );
         }
-        return classMutableLiveData;
+        return memberItemList;
+    }
+
+    private List<MemberItem> getMergeListClass(
+            @Nullable Map<String, Member> memberMap, @Nullable Map<String, Attendance> attendanceMap
+    ) {
+        if (memberMap == null)
+            memberMap = new HashMap<>();
+
+        if (attendanceMap == null)
+            attendanceMap = new HashMap<>();
+
+        //Creamos una lista de asistencia nueva
+        List<MemberItem> newMemberItemList = new ArrayList<>();
+
+        // Recorremos la lista de miembros del curso que debería
+        // contener a todos los que están en la lista de asistencia de la clase
+        Member member;
+        for (String key : memberMap.keySet())
+            // Si el miembro se encuentra activo, o ya no está activo pero
+            // fue listado en algún momento en la clase,
+            // lo agregamos a la nueva lista
+            if ((member = memberMap.get(key)) != null &&
+                    (member.getState() == Member.ACTIVE ||
+                            attendanceMap.containsKey(key))) {
+                member.member_id = key;
+                MemberItem memberItem = new MemberItem();
+                memberItem.setMember(member);
+                memberItem.setAttendance(attendanceMap.get(key));
+                newMemberItemList.add(memberItem);
+            }
+
+        return newMemberItemList;
     }
 
     @NonNull
-    MutableLiveData<List<ClassDay>> getClassDayListLiveData() {
-        if (classDayListMutableLiveData == null)
-            classDayListMutableLiveData = new MutableLiveData<>();
-        return classDayListMutableLiveData;
+    LiveData<Map<String, Member>> getMemberMap() {
+        if (memberMap == null) {
+            memberMap = Transformations.switchMap(
+                    getCourseIdLiveData(), new Function<String, LiveData<Map<String, Member>>>() {
+                        @Override
+                        public LiveData<Map<String, Member>> apply(String courseId) {
+                            return fireBaseRepo.getCourseMembers(courseId);
+                        }
+                    }
+            );
+        }
+        return memberMap;
+    }
+
+    @NonNull
+    LiveData<Map<String, Attendance>> getAttendanceMap() {
+        if (attendanceMap == null)
+            attendanceMap = Transformations.map(
+                    getClassDay(), new Function<ClassDay, Map<String, Attendance>>() {
+                        @Override
+                        public Map<String, Attendance> apply(ClassDay classDay) {
+                            return classDay.members;
+                        }
+                    }
+            );
+        return attendanceMap;
+    }
+
+    @NonNull
+    MutableLiveData<ClassDay> getClassDay() {
+        if (classDay == null)
+            classDay = new MutableLiveData<>();
+        return classDay;
+    }
+
+    void setClassDay(ClassDay classDay) {
+        getClassDay().setValue(classDay);
+    }
+
+    @NonNull
+    LiveData<List<ClassDay>> getClassDayList() {
+        if (classDayList == null) {
+            classDayList = new MediatorLiveData<>();
+            classDayList.addSource(
+                    fireBaseRepo.getCourseClasses(courseId.getValue()),
+                    new Observer<DataResult>() {
+                        @Override
+                        public void onChanged(@Nullable DataResult dataSnapshot) {
+                            if (dataSnapshot == null) {
+                                classDayList.setValue(null);
+                                return;
+                            }
+                            List<ClassDay> classDays = new ArrayList<>();
+                            for (DataSnapshot data : dataSnapshot.getDataSnapshot().getChildren()) {
+                                if (data == null) continue;
+                                ClassDay classDay = data.getValue(ClassDay.class);
+                                if (classDay == null) continue;
+                                classDays.add(classDay);
+                            }
+                            classDayList.setValue(classDays);
+                        }
+                    }
+            );
+        }
+        return classDayList;
+    }
+
+    @NonNull
+    MutableLiveData<MemberItem> getMemberItem() {
+        if (memberItem == null)
+            memberItem = new MutableLiveData<>();
+        return memberItem;
+    }
+
+    void setMemberItem(MemberItem memberItem) {
+        getMemberItem().setValue(memberItem);
+    }
+
+    void setNextMember() {
+
+        List<MemberItem> memberItems = getMemberItemList().getValue();
+        if (memberItems == null || memberItems.size() == 0) {
+            setMemberItem(null);
+            return;
+        }
+
+        MemberItem memberItem = getMemberItem().getValue();
+        if (memberItem == null)
+            setMemberItem(memberItems.get(0));
+        else if (memberItems.indexOf(memberItem) < memberItems.size() - 1)
+            setMemberItem(memberItems.get(memberItems.indexOf(memberItem) + 1));
+
+    }
+
+    void setPreviousMember() {
+
+        List<MemberItem> memberItems = getMemberItemList().getValue();
+        if (memberItems == null || memberItems.size() == 0) {
+            setMemberItem(null);
+            return;
+        }
+
+        MemberItem memberItem = getMemberItem().getValue();
+        if (memberItem == null)
+            setMemberItem(memberItems.get(0));
+        else if (memberItems.indexOf(memberItem) > 0)
+            setMemberItem(memberItems.get(memberItems.indexOf(memberItem) - 1));
+
     }
 
     void setNextClass() {
-        List<ClassDay> classDayList = getClassDayListLiveData().getValue();
-        if (classDayList == null || classDayList.size() == 0)
+
+        List<ClassDay> classDayList = getClassDayList().getValue();
+        if (classDayList == null || classDayList.size() == 0) {
+            setClassDay(null);
             return;
+        }
 
-        ClassDay currentClassDay = getClassLiveData().getValue();
-        if (currentClassDay == null)
-            setCurrentClass(classDayList.get(0));
+        ClassDay classDay = getClassDay().getValue();
+        if (classDay == null)
+            setClassDay(classDayList.get(classDayList.size() - 1));
+        else if (classDayList.indexOf(classDay) < classDayList.size() - 1)
+            setClassDay(classDayList.get(classDayList.indexOf(classDay) + 1));
 
-        setCurrentClass(
-                classDayList.get(
-                        (classDayList.indexOf(currentClassDay) == classDayList.size() - 1) ?
-                                0 : classDayList.indexOf(currentClassDay) + 1
-                )
-        );
     }
 
-    void setPrevClass() {
-        List<ClassDay> classDayList = getClassDayListLiveData().getValue();
-        if (classDayList == null || classDayList.size() == 0)
+    void setPreviousClass() {
+
+        List<ClassDay> classDayList = getClassDayList().getValue();
+        if (classDayList == null || classDayList.size() == 0) {
+            setClassDay(null);
             return;
+        }
 
-        ClassDay currentClassDay = getClassLiveData().getValue();
-        if (currentClassDay == null)
-            setCurrentClass(classDayList.get(0));
+        ClassDay classDay = getClassDay().getValue();
+        if (classDay == null)
+            setClassDay(classDayList.get(classDayList.size() - 1));
+        else if (classDayList.indexOf(classDay) > 0)
+            setClassDay(classDayList.get(classDayList.indexOf(classDay) - 1));
 
-        setCurrentClass(
-                classDayList.get(
-                        (classDayList.indexOf(currentClassDay) == 0) ?
-                                classDayList.size() - 1 : classDayList.indexOf(currentClassDay) - 1
-                )
-        );
     }
 
-    void saveNewClassDay(ClassDay newClassDay) {
-        List<ClassDay> classDayList = getClassDayListLiveData().getValue();
-        Course course = getCourseLiveData(null).getValue();
-        if (course == null || TextUtils.isEmpty(course.id) || classDayList == null) return;
+    void onClassDayListUpdated(List<ClassDay> classDayList) {
 
+        if (classDayList == null || classDayList.size() == 0) {
+            setClassDay(null);
+            return;
+        }
+
+        ClassDay currentClassDay = getClassDay().getValue();
+
+        if (currentClassDay == null || getClassOnDay(currentClassDay.getDate()) == null)
+            setClassDay(classDayList.get(classDayList.size() - 1));
+
+    }
+
+    private ClassDay getClassOnDay(long date) {
+        List<ClassDay> classDayList = getClassDayList().getValue();
+        if (classDayList == null) return null;
         for (ClassDay classDay : classDayList)
-            if (newClassDay.isSameDay(classDay)) {
-                setCurrentClass(classDay);
-                return;
-            }
+            if (Util.isSameDay(classDay.getDate(), date))
+                return classDay;
+        return null;
+    }
 
-        newClassDay.course_id = course.id;
+    ////////////
 
-        FirebaseDatabase.getInstance().getReference("classes").push()
-                .setValue(newClassDay, new DatabaseReference.CompletionListener() {
+    void createClassDay(int year, int month, int dayOfMonth) {
+
+        String courseId = getCourseIdLiveData().getValue();
+        if (TextUtils.isEmpty(courseId)){
+            responseMutableLiveData.setValue(
+                    new Response(false, "Curso es null")
+            );
+            return;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, dayOfMonth);
+        ClassDay newClassDay = new ClassDay(
+                courseId, calendar.getTimeInMillis(),null,null
+        );
+
+        // Revisamos que no exista una clase en el mismo día para este curso. Si existe la
+        // mostramos como actual
+        if (getClassDayList().getValue() != null)
+            for (ClassDay classDay : getClassDayList().getValue())
+                if (Util.isSameDay(newClassDay.getDate(), classDay.getDate())) {
+                    setClassDay(classDay);
+                    return;
+                }
+
+        fireBaseRepo.createClassDay(newClassDay)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(
-                            @Nullable DatabaseError databaseError,
-                            @NonNull DatabaseReference databaseReference
-                    ) {
-
+                    public void onSuccess(Void aVoid) {
+                        responseMutableLiveData.setValue(
+                                new Response(CLASS_CREATED, "Clase creada")
+                        );
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        responseMutableLiveData.setValue(
+                                new Response(false, e.getMessage())
+                        );
                     }
                 });
-
     }
 
-    void updateMemberClass(ClassDay.Member member) {
+    void updateAttendance(MemberItem memberItem) {
 
-        ClassDay classDay = getClassLiveData().getValue();
-        if (classDay == null || TextUtils.isEmpty(classDay.id)) return;
+        ClassDay classDay = getClassDay().getValue();
+        if (classDay == null || TextUtils.isEmpty(classDay.class_id)){
+            responseMutableLiveData.setValue(
+                    new Response(false, "Clase es null")
+            );
+            return;
+        }
 
-        FirebaseDatabase.getInstance().getReference("classes").child(classDay.id)
-                .child("members").child(member.id).setValue(member);
+        FirebaseDatabase.getInstance().getReference("classes").child(classDay.class_id)
+                .child("members").child(memberItem.memberId)
+                .setValue(memberItem.getAttendance());
 
     }
 
     /** Agregamos un nuevo miembro al curso y generamos una entrada en la lista de seguimientos
      *  para ir registrandolo en las siguientes clases
      *
-     * @param member Un objeto con los datos del nuevo miembro
+     * @param memberItem Un objeto con los datos del nuevo miembro
      */
-    void saveMemberToCourse(Course.Member member) {
+    void saveMemberToCourse(MemberItem memberItem) {
 
-        Course course = getCourseLiveData(null).getValue();
-        if (course == null || TextUtils.isEmpty(course.id)) return;
+        String courseId = getCourseIdLiveData().getValue();
+        if (TextUtils.isEmpty(courseId)) return;
 
+        assert courseId != null;
         String memberKey = FirebaseDatabase.getInstance().getReference("courses")
-                .child(course.id).child("members").push().getKey();
+                .child(courseId).child("members").push().getKey();
 
         Map<String, Object> childsUpdate = new HashMap<>();
-        childsUpdate.put("/courses/" + course.id + "/members/" + memberKey, member.toMap());
-        childsUpdate.put("tracking/" + memberKey + "/user_id", member.user_id);
-        childsUpdate.put("tracking/" + memberKey + "/course_id", course.id);
-        childsUpdate.put("tracking/" + memberKey + "/profile/url_image", member.url_image);
-        childsUpdate.put("tracking/" + memberKey + "/profile/lastname", member.lastname);
-        childsUpdate.put("tracking/" + memberKey + "/profile/names", member.names);
+        childsUpdate.put("/courses/" + courseId + "/members/" + memberKey, memberItem.getMember().toMap());
+        childsUpdate.put("tracking/" + memberKey + "/user_id", memberItem.getUser_id());
+        childsUpdate.put("tracking/" + memberKey + "/course_id", courseId);
+        childsUpdate.put("tracking/" + memberKey + "/profile/url_image", memberItem.getMember().getUrl_image());
+        childsUpdate.put("tracking/" + memberKey + "/profile/lastname", memberItem.getMember().getLastname());
+        childsUpdate.put("tracking/" + memberKey + "/profile/names", memberItem.getMember().getNames());
 
         FirebaseDatabase.getInstance().getReference().updateChildren(
                 childsUpdate, new DatabaseReference.CompletionListener() {
@@ -179,99 +389,54 @@ public class ClassViewModel extends ViewModel {
                             @Nullable DatabaseError databaseError,
                             @NonNull DatabaseReference databaseReference) {
                         if (databaseError != null)
-                            databaseErrorMutableLiveData.setValue(databaseError);
+                            responseMutableLiveData.setValue(
+                                    new Response(false, databaseError.getMessage())
+                            );
                         else
-                            successMutableLiveData.setValue(MEMBER_CREATED);
+                            responseMutableLiveData.setValue(
+                                    new Response(MEMBER_CREATED, "Miembro creado")
+                            );
                     }
                 }
         );
 
     }
 
-    private void setCurrentClass(@Nullable ClassDay classDay) {
-        if (classMutableLiveData == null)
-            classMutableLiveData = new MutableLiveData<>();
-        classMutableLiveData.setValue(classDay);
-    }
-
-    private void loadCourse(@NonNull String courseId) {
-        fireBaseRepo.getCourse(courseId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Course course = dataSnapshot.getValue(Course.class);
-                        if (course != null) course.id = dataSnapshot.getKey();
-                        courseMutableLiveData.setValue(course);
-                        loadClasses();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        databaseErrorMutableLiveData.setValue(databaseError);
-                    }
-                });
-    }
-
-    private void loadClasses() {
-        Course course = getCourseLiveData(null).getValue();
-        if (course == null || TextUtils.isEmpty(course.id)) return;
-
-        FirebaseDatabase.getInstance().getReference("classes")
-                .orderByChild("course_id").equalTo(course.id).limitToFirst(190)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        List<ClassDay> classDays = new ArrayList<>();
-                        ClassDay classDay;
-                        for (DataSnapshot data : dataSnapshot.getChildren()){
-                            classDay = data.getValue(ClassDay.class);
-                            if (classDay == null) continue;
-                            classDay.id = data.getKey();
-                            classDays.add(classDay);
-                        }
-
-                        // Las clases quedan ordenadas de la más reciente a la más antigua
-                        Collections.sort(classDays, new Comparator<ClassDay>() {
-                            @Override
-                            public int compare(ClassDay o1, ClassDay o2) {
-                                return o2.getDate().compareTo(o1.getDate());
-                            }
-                        });
-                        Collections.reverse(classDays);
-
-                        getClassDayListLiveData().setValue(classDays);
-
-                        if (classDays.size() > 0) setCurrentClass(classDays.get(classDays.size() - 1));
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        databaseErrorMutableLiveData.setValue(databaseError);
-                    }
-
-                });
-    }
-
-    void deleteMemberClass(ClassDay.Member member) {
-
-    }
-
-    void deleteMemberFromCourse(String courseId, String memberId) {
-        fireBaseRepo.deleteMemberFromCourse(courseId, memberId)
+    void deleteFromCourse(MemberItem memberItem) {
+        fireBaseRepo.deleteMemberFromCourse(memberItem.courseId, memberItem.memberId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        dbResultMutableLiveData.setValue(
-                                new DBResult(true, "Borrado")
+                        responseMutableLiveData.setValue(
+                                new Response(true, "Borrado")
                         );
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dbResultMutableLiveData.setValue(
-                                new DBResult(false, e.getMessage())
+                        responseMutableLiveData.setValue(
+                                new Response(false, e.getMessage())
+                        );
+                    }
+                });
+    }
+
+    void deleteFromClass(MemberItem memberItem) {
+        fireBaseRepo.deleteMemberFromCourse(memberItem.classId, memberItem.memberId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        responseMutableLiveData.setValue(
+                                new Response(true, "Borrado")
+                        );
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        responseMutableLiveData.setValue(
+                                new Response(false, e.getMessage())
                         );
                     }
                 });

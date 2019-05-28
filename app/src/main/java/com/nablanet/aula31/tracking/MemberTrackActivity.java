@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.nablanet.aula31.R;
+import com.nablanet.aula31.repo.entity.Observation;
+import com.nablanet.aula31.repo.entity.Profile;
 import com.nablanet.aula31.views.RatingPersonView;
 
 public class MemberTrackActivity extends AppCompatActivity {
@@ -39,7 +41,7 @@ public class MemberTrackActivity extends AppCompatActivity {
     EditText comment;
     RatingPersonView ratingPersonView, averageRate;
     String userId, memberId, classId, courseId;
-    MemberTrack.Profile profile;
+    Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +74,9 @@ public class MemberTrackActivity extends AppCompatActivity {
 
         trackingViewModel = ViewModelProviders.of(this).get(TrackingViewModel.class);
         trackingViewModel.getCurrentProfileLiveData(memberId)
-                .observe(this, new Observer<MemberTrack.Profile>() {
+                .observe(this, new Observer<Profile>() {
                     @Override
-                    public void onChanged(@Nullable MemberTrack.Profile profile) {
+                    public void onChanged(@Nullable Profile profile) {
                         if (profile == null) return;
                         MemberTrackActivity.this.profile = profile;
                         lastname.setText(profile.lastname);
@@ -82,9 +84,9 @@ public class MemberTrackActivity extends AppCompatActivity {
                     }
                 });
         trackingViewModel.getCurrentObservationLiveData(memberId, classId)
-                .observe(this, new Observer<MemberTrack.Observation>() {
+                .observe(this, new Observer<Observation>() {
                     @Override
-                    public void onChanged(@Nullable MemberTrack.Observation observation) {
+                    public void onChanged(@Nullable Observation observation) {
                         if (observation == null) return;
                         comment.setText(observation.comment);
                         ratingPersonView.setRating(observation.rate);
@@ -148,7 +150,7 @@ public class MemberTrackActivity extends AppCompatActivity {
 
                 trackingViewModel.saveTrack(
                         memberId, classId, userId,
-                        new MemberTrack.Observation(
+                        new Observation(
                                 Math.round(rating),
                                 comment.getText().toString()
                         )

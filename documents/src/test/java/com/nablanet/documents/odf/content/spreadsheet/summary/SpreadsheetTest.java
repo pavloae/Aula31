@@ -13,9 +13,7 @@ public class SpreadsheetTest {
     @Test
     public void createSheets() {
 
-        TemplateODS templateODS = new TemplateODS();
 
-        Document contentDoc = templateODS.getContentDoc();
 
     }
 }

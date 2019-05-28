@@ -8,10 +8,6 @@ import android.graphics.pdf.PdfDocument;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.jopendocument.dom.XMLFormatVersion;
-import org.jopendocument.dom.spreadsheet.Sheet;
-import org.jopendocument.dom.spreadsheet.SpreadSheet;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,25 +78,5 @@ public class UtilTestInstrumented {
     @Test
     public void createODS() {
 
-        String[] valueset = new String[]{"uno","dos","tres","cuatro","cinco"};
-
-        XMLFormatVersion xmlFormatVersion = XMLFormatVersion.getDefault();
-
-        SpreadSheet spreadSheet = SpreadSheet.create(1,20,50);
-
-        Sheet sheet = spreadSheet.getSheet(0);
-
-        int lineIndex = 1;
-        for (String value : valueset) {
-            sheet.setValueAt(value,1, lineIndex);
-
-            lineIndex++;
-        }
-
-        try {
-            spreadSheet.saveAs(new File("/data/data/com.nablanet.aula31/databases/example.ods"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

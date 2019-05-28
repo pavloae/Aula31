@@ -5,6 +5,8 @@ import com.nablanet.documents.odf.content.BaseElement;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.util.Locale;
+
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -25,7 +27,7 @@ public abstract class Sheet<T extends DataSheet> extends BaseElement {
     protected RowElement getRow(int position) {
         try {
             Node node = (Node) getXPath().evaluate(
-                    String.format("./table:table-row[%d]", position),
+                    String.format(Locale.getDefault(), "./table:table-row[%d]", position),
                     getElement(), XPathConstants.NODE
             );
             return  new RowElement((Element) node);
@@ -38,7 +40,7 @@ public abstract class Sheet<T extends DataSheet> extends BaseElement {
     public CellElement getCell(int row, int col) {
         try {
             Node node = (Node) getXPath().evaluate(
-                    String.format("./table:table-row[%d]/table:table-cell[%d]", row, col),
+                    String.format(Locale.getDefault(),"./table:table-row[%d]/table:table-cell[%d]", row, col),
                     getElement(), XPathConstants.NODE
             );
             return new CellElement((Element) node);

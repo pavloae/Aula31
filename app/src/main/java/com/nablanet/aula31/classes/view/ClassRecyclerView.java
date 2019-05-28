@@ -1,4 +1,4 @@
-package com.nablanet.aula31.classes;
+package com.nablanet.aula31.classes.view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -7,11 +7,19 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import com.nablanet.aula31.classes.OnMemberListener;
+import com.nablanet.aula31.classes.entity.MemberItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClassRecyclerView extends RecyclerView {
 
+
+    /**
+     * Constantes para el tipo de Layout
+     *
+     */
     public static final int LIST = 1;
     public static final int GRID = 6;
 
@@ -41,7 +49,7 @@ public class ClassRecyclerView extends RecyclerView {
                             "debe implementar la interface OnMemberListener"
             );
         if (getItemAnimator() != null) getItemAnimator().setChangeDuration(700);
-        memberAdapter = new MemberAdapter(new ArrayList<ClassDay.Member>(), (OnMemberListener) context, LIST);
+        memberAdapter = new MemberAdapter(new ArrayList<MemberItem>(), (OnMemberListener) context, LIST);
         memberAdapter.setHasStableIds(true);
         setAdapter(memberAdapter);
         gridLayoutManager = new GridLayoutManager(context, 1);
@@ -59,9 +67,8 @@ public class ClassRecyclerView extends RecyclerView {
         return layoutType;
     }
 
-    public void updateList(List<ClassDay.Member> members) {
-        if (memberAdapter != null)
-            memberAdapter.updateMembers(members);
+    public void updateList(List<MemberItem> memberExts) {
+        memberAdapter.updateMembers(memberExts);
     }
 
 }

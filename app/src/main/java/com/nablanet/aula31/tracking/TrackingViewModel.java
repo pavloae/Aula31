@@ -12,14 +12,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nablanet.aula31.repo.FireBaseRepo;
+import com.nablanet.aula31.repo.entity.ClassTrack;
+import com.nablanet.aula31.repo.entity.Observation;
+import com.nablanet.aula31.repo.entity.Profile;
+import com.nablanet.aula31.repo.entity.MemberTrack;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class TrackingViewModel extends ViewModel {
 
-    private MutableLiveData<MemberTrack.Profile> profileMutableLiveData;
-    private MutableLiveData<MemberTrack.Observation> currentObservationMutableLiveData;
+    private FireBaseRepo fireBaseRepo = FireBaseRepo.getInstance();
+
+    private MutableLiveData<Profile> profileMutableLiveData;
+    private MutableLiveData<Observation> currentObservationMutableLiveData;
     private MutableLiveData<Float> averageRateMutableLiveData;
 
     private MutableLiveData<DatabaseError> databaseErrorMutableLiveData = new MutableLiveData<>();
@@ -30,7 +37,7 @@ public class TrackingViewModel extends ViewModel {
         return databaseErrorMutableLiveData;
     }
 
-    LiveData<MemberTrack.Profile> getCurrentProfileLiveData(@NonNull String memberId) {
+    LiveData<Profile> getCurrentProfileLiveData(@NonNull String memberId) {
         if (profileMutableLiveData == null) {
             profileMutableLiveData = new MutableLiveData<>();
             loadMemberTrackList(memberId);
@@ -38,7 +45,7 @@ public class TrackingViewModel extends ViewModel {
         return profileMutableLiveData;
     }
 
-    LiveData<MemberTrack.Observation> getCurrentObservationLiveData(@NonNull String memberId, @NonNull String classId) {
+    LiveData<Observation> getCurrentObservationLiveData(@NonNull String memberId, @NonNull String classId) {
         if (currentObservationMutableLiveData == null) {
             currentObservationMutableLiveData = new MutableLiveData<>();
             loadObservation(memberId, classId);
@@ -51,7 +58,7 @@ public class TrackingViewModel extends ViewModel {
         return averageRateMutableLiveData;
     }
 
-    void saveTrack(String memberId, String classId, String userId, MemberTrack.Observation observation) {
+    void saveTrack(String memberId, String classId, String userId, Observation observation) {
         FirebaseDatabase.getInstance().getReference("tracking").child(memberId)
                 .child("classes").child(classId).child("observations").child(userId)
                 .setValue(observation, new DatabaseReference.CompletionListener() {
@@ -66,23 +73,23 @@ public class TrackingViewModel extends ViewModel {
                 });
     }
 
-    void updateMember(MemberTrack memberTrack) {
+    void updateMember(MemberTracks memberTracks) {
 
         Map<String, Object> childsUpdate = new HashMap<>();
 
         childsUpdate.put(
-                "courses/" + memberTrack.course_id + "/members/" + memberTrack.id + "/lastname",
-                memberTrack.profile.lastname
+                "courses/" + memberTracks.course_id + "/members/" + memberTracks.id + "/lastname",
+                memberTracks.profile.lastname
         );
         childsUpdate.put(
-                "courses/" + memberTrack.course_id + "/members/" + memberTrack.id + "/names",
-                memberTrack.profile.names
+                "courses/" + memberTracks.course_id + "/members/" + memberTracks.id + "/names",
+                memberTracks.profile.names
         );
         childsUpdate.put(
-                "tracking/" + memberTrack.id + "/profile/lastname", memberTrack.profile.lastname
+                "tracking/" + memberTracks.id + "/profile/lastname", memberTracks.profile.lastname
         );
         childsUpdate.put(
-                "tracking/" + memberTrack.id + "/profile/names", memberTrack.profile.names
+                "tracking/" + memberTracks.id + "/profile/names", memberTracks.profile.names
         );
 
 
@@ -102,25 +109,40 @@ public class TrackingViewModel extends ViewModel {
     }
 
     private void loadMemberTrackList(@NonNull final String memberId) {
-        FirebaseDatabase.getInstance().getReference("tracking").child(memberId)
-                .addValueEventListener(new ValueEventListener() {
+        fireBaseRepo.getMemberTrack(memberId).addValueEventListener(
+                new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         MemberTrack memberTrack = dataSnapshot.getValue(MemberTrack.class);
                         if (memberTrack == null) return;
                         profileMutableLiveData.setValue(memberTrack.profile);
-
                         getAverageRateLiveData().setValue(
-                                memberTrack.getAverageRate(FirebaseAuth.getInstance().getUid())
+                                getAverageRate(memberTrack, FirebaseAuth.getInstance().getUid())
                         );
-
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         databaseErrorMutableLiveData.setValue(databaseError);
                     }
-                });
+                }
+        );
+    }
+
+    private Float getAverageRate(MemberTrack memberTrack, @Nullable String observerUid) {
+
+        int count = 0;
+        Float totalRate = 0F;
+
+        for (ClassTrack classTrack : memberTrack.classes.values())
+            for (String observer : classTrack.observations.keySet()){
+                Observation observation = classTrack.observations.get(observer);
+                if (observation != null && (observerUid == null || observer.equals(observerUid))) {
+                    count++;
+                    totalRate += observation.rate;
+                }
+            }
+
+        return totalRate / count;
     }
 
     private void loadObservation(@NonNull String memberId, @NonNull String classId) {
@@ -129,7 +151,7 @@ public class TrackingViewModel extends ViewModel {
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        MemberTrack.ClassTrack classTrack = dataSnapshot.getValue(MemberTrack.ClassTrack.class);
+                        ClassTrack classTrack = dataSnapshot.getValue(ClassTrack.class);
                         if (classTrack == null || classTrack.observations == null) return;
                         currentObservationMutableLiveData.setValue(
                                 classTrack.observations.get(FirebaseAuth.getInstance().getUid())

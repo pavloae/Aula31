@@ -17,8 +17,6 @@ public class SummarySheet extends Sheet<DataSummary> {
     public void setData(DataSummary data) {
         super.setData(data);
 
-
-
         getCell(1, 1).setTextValue(data.getTitle());
         getCell(2, 2).setIntegerValue(data.getPeriod());
         getCell(2, 4).setTextValue(data.getSubject());

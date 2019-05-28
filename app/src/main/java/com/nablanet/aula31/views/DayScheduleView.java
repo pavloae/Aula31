@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.courses.entity.CourseExt;
 import com.nablanet.aula31.utils.Util;
 
 import java.util.Calendar;
@@ -22,7 +22,7 @@ public class DayScheduleView extends CardView {
 
     private static int startMinute, endMinute;
     private static int startMarkMinute, intervalMinute, intervalsCount;
-    private static List<Course> courses;
+    private static List<CourseExt> courses;
 
     // Unidades en dp
     int leftMarginDp, rightMarginDp;
@@ -80,7 +80,7 @@ public class DayScheduleView extends CardView {
         ) / DayScheduleView.intervalMinute + 1;
     }
 
-    public static void setCourses(List<Course> courses) {
+    public static void setCourses(List<CourseExt> courses) {
         DayScheduleView.courses = courses;
     }
 
@@ -233,8 +233,8 @@ public class DayScheduleView extends CardView {
     }
 
     private void updateCourses() {
-        /*List<Course.Schedule> schedules = new ArrayList<>();
-        for (Course course : courses) {
+        /*List<CourseExt.Schedule> schedules = new ArrayList<>();
+        for (CourseExt course : courses) {
             if (course.schedules.containsKey(weekDay))
                 schedules.add(course.schedules.get(weekDay));
 

@@ -13,7 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.courses.entity.CourseProfileExt;
 import com.nablanet.aula31.schedules.Schedule;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class ScheduleViewModel extends ViewModel {
     public static final int SCHEDULE_SAVED = 0;
 
     MutableLiveData<List<Schedule>> schedulesLiveDataByUser;
-    MutableLiveData<Course.Profile> currentCourseMutableLiveData;
+    MutableLiveData<CourseProfileExt> currentCourseMutableLiveData;
     String userId;
 
     private final MutableLiveData<DatabaseError> databaseErrorMutableLiveData = new MutableLiveData<>();
@@ -38,7 +38,7 @@ public class ScheduleViewModel extends ViewModel {
         return schedulesLiveDataByUser;
     }
 
-    public LiveData<Course.Profile> getCurrentCourseMutableLiveData() {
+    public LiveData<CourseProfileExt> getCurrentCourseMutableLiveData() {
         if (currentCourseMutableLiveData == null) currentCourseMutableLiveData = new MutableLiveData<>();
         return currentCourseMutableLiveData;
     }
@@ -90,7 +90,7 @@ public class ScheduleViewModel extends ViewModel {
             Schedule schedule = new Schedule();
             scheduleRef = scheduleRef.push();
             schedule.id = scheduleRef.push().getKey();
-            schedule.course_id = currentCourseMutableLiveData.getValue().courseId;
+            schedule.course_id = currentCourseMutableLiveData.getValue().course_id;
             schedule.user_id = FirebaseAuth.getInstance().getUid();
             schedule.weekdays = new HashMap<>();
             schedule.weekdays.put(

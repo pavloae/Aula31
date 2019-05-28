@@ -6,15 +6,15 @@ import java.util.List;
 
 public interface DataWork extends DataSheet {
 
-    String getTitle();
+    String getName();
     String getModality();
     Integer getNumber();
-    String getContent();
+    String getTopics();
     String getCriteria1();
     String getCriteria2();
     String getCriteria3();
 
-    List<Member> getMembers();
+    List<? extends Member> getMembers();
 
     interface Member {
         String getName();

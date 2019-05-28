@@ -23,7 +23,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.courses.entity.CourseProfileExt;
 import com.nablanet.aula31.schedules.Schedule;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class ScheduleListFragment extends Fragment {
     Schedule schedule;
     Schedule.Hours hours;
 
-    Course.Profile profile;
+    CourseProfileExt courseProfileExt;
 
     public static ScheduleListFragment newInstance() {
         return new ScheduleListFragment();
@@ -68,15 +68,15 @@ public class ScheduleListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ScheduleViewModel.class);
 
-        profile = mViewModel.getCurrentCourseMutableLiveData().getValue();
+        courseProfileExt = mViewModel.getCurrentCourseMutableLiveData().getValue();
 
         mViewModel.getSchedulesLiveDataByUser().observe(
                 this, new Observer<List<Schedule>>() {
                     @Override
                     public void onChanged(@Nullable List<Schedule> schedules) {
-                        if (schedules == null || profile == null || TextUtils.isEmpty(profile.courseId)) return;
+                        if (schedules == null || courseProfileExt == null || TextUtils.isEmpty(courseProfileExt.course_id)) return;
                         for ( Schedule schedule : schedules)
-                            if (schedule.course_id.equals(profile.courseId)) {
+                            if (schedule.course_id.equals(courseProfileExt.course_id)) {
                                 ScheduleListFragment.this.schedule = schedule;
                                 ((ScheduleListAdapter) recyclerView.getAdapter())
                                         .updateList(new ArrayList<>(schedule.weekdays.values()));

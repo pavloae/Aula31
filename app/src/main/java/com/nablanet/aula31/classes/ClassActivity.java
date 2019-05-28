@@ -6,13 +6,11 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,41 +18,44 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseError;
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.classes.entity.MemberItem;
+import com.nablanet.aula31.classes.view.ClassRecyclerView;
+import com.nablanet.aula31.export.ExportActivity;
+import com.nablanet.aula31.repo.Response;
+import com.nablanet.aula31.repo.entity.ClassDay;
 import com.nablanet.aula31.tracking.MemberTrackActivity;
 import com.nablanet.aula31.utils.Util;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 public class ClassActivity extends AppCompatActivity implements View.OnClickListener, OnMemberListener {
 
     public static final String COURSE_ID_KEY = "course_id_key";
-    public static final String MEMBER_ID_KEY = "member_id_key";
+    //public static final String MEMBER_ID_KEY = "member_id_key";
     public static final String SUBJECT_KEY = "subject_key";
     public static final String INSTITUTE_KEY = "institute_key";
 
     public static final String LAYOUT_TYPE_KEY = "layout_type_key";
 
-    int layoutType;
     Toolbar toolbar;
-    TextView dateTV, lastnameTV, namesTV;
-    ClassViewModel classViewModel;
+
+    // Top Member View
     RelativeLayout memberBar;
-    ClassRecyclerView recyclerView;
-    List<ClassDay.Member> memberList;
-    ClassDay.Member currentMember;
+    TextView lastnameTV, namesTV;
     ImageButton absentIB;
-    Course course;
-    ClassDay classDay;
+
+    // Main Class View
+    ClassRecyclerView recyclerView;
+
+    // Bottom Day View
+    TextView dateTV;
+
+    ClassViewModel classViewModel;
+    @Nullable MemberItem currentMember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +72,15 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
         recyclerView = findViewById(R.id.members_class_rv);
         dateTV = findViewById(R.id.date_tv);
 
-        layoutType = (savedInstanceState == null) ?
-                ClassRecyclerView.LIST : savedInstanceState.getInt(LAYOUT_TYPE_KEY);
+        toolbar.setTitle(getIntent().getStringExtra(SUBJECT_KEY));
+        toolbar.setSubtitle(getIntent().getStringExtra(INSTITUTE_KEY));
 
-        setLayoutType();
+        setLayoutType(
+                (savedInstanceState == null) ?
+                ClassRecyclerView.LIST : savedInstanceState.getInt(LAYOUT_TYPE_KEY)
+        );
 
-        setViewModel();
+        bindViewModel();
 
     }
 
@@ -88,22 +92,26 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.view_button:
-                layoutType = (recyclerView.getLayoutType() == ClassRecyclerView.LIST) ?
-                        ClassRecyclerView.GRID : ClassRecyclerView.LIST;
-                setLayoutType();
+                setLayoutType(
+                        (recyclerView.getLayoutType() == ClassRecyclerView.LIST) ?
+                                ClassRecyclerView.GRID : ClassRecyclerView.LIST
+                );
                 setMenuIcon(item);
                 break;
             case R.id.new_class:
-                launchCalendar();
+                onCalendar(null);
                 break;
             case R.id.new_member:
                 new AddMemberDialog().show(getSupportFragmentManager(), null);
                 break;
+            case R.id.export:
+                Intent intent = new Intent(this, ExportActivity.class);
+                intent.putExtra(COURSE_ID_KEY, classViewModel.getCourseIdLiveData().getValue());
+                startActivity(intent);
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -113,51 +121,109 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
         super.onSaveInstanceState(outState);
     }
 
+    private void bindViewModel() {
+        classViewModel = ViewModelProviders.of(this).get(ClassViewModel.class);
+
+        //Escuchamos las respuestas
+        classViewModel.getResponseLiveData().observe(this, new Observer<Response>() {
+            @Override
+            public void onChanged(@Nullable Response response) {
+                if (response != null)
+                    Snackbar.make(toolbar, response.getMessage(), Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+            }
+        });
+
+        // Configuramos el curso
+        classViewModel.setCourseId(getIntent().getStringExtra(COURSE_ID_KEY));
+
+        // Mantenemos actualizada la lista de Miembros de la clase activa
+        classViewModel.getMemberItemList().observe(this, new Observer<List<MemberItem>>() {
+            @Override
+            public void onChanged(@Nullable List<MemberItem> memberItems) {
+                recyclerView.updateList(memberItems);
+            }
+        });
+
+        // Mantenemos actualizado el Miembro activo
+        classViewModel.getMemberItem().observe(this, new Observer<MemberItem>() {
+            @Override
+            public void onChanged(@Nullable MemberItem memberItem) {
+                setCurrentMember(memberItem);
+            }
+        });
+
+        classViewModel.getClassDayList().observe(this, new Observer<List<ClassDay>>() {
+            @Override
+            public void onChanged(@Nullable List<ClassDay> classDays) {
+                classViewModel.onClassDayListUpdated(classDays);
+            }
+        });
+
+        // Mantenemos actualizados los datos de la Clase activa
+        classViewModel.getClassDay().observe(this, new Observer<ClassDay>() {
+            @Override
+            public void onChanged(@Nullable ClassDay classDay) {
+                dateTV.setText(
+                        (classDay == null) ? "" : Util.getStringDate(classDay.getDate()));
+            }
+        });
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.back_day_button:
-                classViewModel.setPrevClass();
-                break;
-            case R.id.forward_day_button:
-                classViewModel.setNextClass();
-                break;
-            case R.id.date_tv:
-                launchCalendar();
-                break;
+
+            // Boton de asistencia de la vista superior.
+            // Al tomar asistencia desde acá eliminamos la posición en el aula
             case R.id.absent_member_bar_ib:
-                currentMember.present = currentMember.present == null || !currentMember.present;
-                currentMember.position = null;
-                classViewModel.updateMemberClass(currentMember);
+                if (currentMember == null) return;
+                currentMember.setPosition(null);
+                currentMember.setPresent(
+                        currentMember.getPresent() == null || !currentMember.getPresent()
+                );
+                classViewModel.updateAttendance(currentMember);
                 break;
+
+            // Vista del perfil del usuario en la vista superior
+            case R.id.member_rl:
+                onMemberTrack(currentMember);
+                break;
+
         }
     }
 
     @Override
-    public void onItemClick(ClassDay.Member member) {
+    public void onItemClick(MemberItem memberItem) {
+
+        // Si estamos en el modo lista: fue cambiada la asistencia del miembro a la clase.
+        // Lo actualizamos en la base de datos y lo configuramos como miembro actual
         if (recyclerView.getLayoutType() == ClassRecyclerView.LIST) {
-            classViewModel.updateMemberClass(member);
+            classViewModel.updateAttendance(memberItem);
+            classViewModel.setMemberItem(memberItem);
+        }
+
+        // Si estamos en el modo Pupitres y fue seleccionado un pupitre vacío
+        else if (memberItem.isNew()) {
+            if (currentMember == null) return;
+            currentMember.setPosition(memberItem.getPosition());
+            currentMember.setPresent(true);
+            classViewModel.updateAttendance(memberItem);
             onNextMember(null);
-        } else if (member.isNew()) {
-            currentMember.position = member.position;
-            currentMember.present = true;
-            classViewModel.updateMemberClass(currentMember);
-            onNextMember(null);
-        } else{
-            member.position = null;
-            currentMember = member;
-            currentMember.present = false;
-            setCurrentMemberToView();
-            classViewModel.updateMemberClass(currentMember);
+        }
+
+        // Si fue seleccionado un pupitre con un miembro, lo marcamos como actual
+        else {
+            classViewModel.setMemberItem(memberItem);
         }
     }
 
     @Override
-    public boolean onItemLongClick(final ClassDay.Member member) {
+    public boolean onItemLongClick(final MemberItem memberItem) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle(member.lastname);
+        builder.setTitle(memberItem.lastname);
         builder.setItems(
                 new String[]{"Borrar de la clase", "Borrar del curso"},
                 new DialogInterface.OnClickListener() {
@@ -165,10 +231,10 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                classViewModel.deleteMemberClass(member);
+                                classViewModel.deleteFromClass(memberItem);
                                 break;
                             case 1:
-                                classViewModel.deleteMemberFromCourse(course.id, member.id);
+                                classViewModel.deleteFromCourse(memberItem);
                                 break;
                                 default:
                         }
@@ -176,145 +242,34 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
                     }
                 }
         );
-
         builder.show();
-
         return true;
     }
 
     @Override
-    public void onMemberTrack(ClassDay.Member member) {
+    public void onMemberTrack(MemberItem memberItem) {
 
-        if (course == null || TextUtils.isEmpty(course.id) || TextUtils.isEmpty(member.id)
-                || classDay == null || TextUtils.isEmpty(classDay.id))
-            return;
-
-        this.currentMember = member;
-        setCurrentMemberToView();
+        classViewModel.setMemberItem(memberItem);
 
         Bundle bundle = new Bundle();
-        bundle.putString(MemberTrackActivity.COURSE_ID_KEY, course.id);
-        bundle.putString(MemberTrackActivity.MEMBER_ID_KEY, member.id);
-        bundle.putString(MemberTrackActivity.LASTNAME_KEY, member.lastname);
-        bundle.putString(MemberTrackActivity.NAMES_KEY, member.names);
-        bundle.putString(MemberTrackActivity.CLASS_ID_KEY, classDay.id);
+        bundle.putString(MemberTrackActivity.COURSE_ID_KEY, classViewModel.getCourseIdLiveData().getValue());
+        bundle.putString(MemberTrackActivity.MEMBER_ID_KEY, memberItem.memberId);
+        bundle.putString(MemberTrackActivity.LASTNAME_KEY, memberItem.lastname);
+        bundle.putString(MemberTrackActivity.NAMES_KEY, memberItem.names);
+        ClassDay classDay = classViewModel.getClassDay().getValue();
+        if (classDay != null)
+            bundle.putString(MemberTrackActivity.CLASS_ID_KEY, classDay.class_id);
 
         startActivity(new Intent(this, MemberTrackActivity.class).putExtras(bundle));
 
     }
 
-    private void setViewModel() {
-        classViewModel = ViewModelProviders.of(this).get(ClassViewModel.class);
-        classViewModel.getCourseLiveData(getIntent().getStringExtra(COURSE_ID_KEY)).observe(
-                this, new Observer<Course>() {
-                    @Override
-                    public void onChanged(@Nullable Course course) {
-                        if (course != null) setCourse(course);
-                    }
-                }
-        );
-        classViewModel.getClassLiveData().observe(this, new Observer<ClassDay>() {
-            @Override
-            public void onChanged(@Nullable ClassDay classDay) {
-                if (classDay != null) setClassDay(classDay);
-            }
-        });
-        classViewModel.getDatabaseError().observe(this, new Observer<DatabaseError>() {
-            @Override
-            public void onChanged(@Nullable DatabaseError databaseError) {
-                if (databaseError != null)
-                    Snackbar.make(toolbar, databaseError.getMessage(), Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-            }
-        });
-        classViewModel.getSuccessMutableLiveData().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer integer) {
-                if (integer == null) return;
-                String message;
-                switch (integer) {
-                    case ClassViewModel.MEMBER_CREATED:
-                        message = "Miembro creado";
-                        break;
-                    case ClassViewModel.MEMBER_EDITED:
-                        message = "Miembro cambiado";
-                        break;
-                        default:
-                            message = "";
-
-                }
-                Toast.makeText(ClassActivity.this, message, Toast.LENGTH_SHORT).show();
-            }
-        });
-        classViewModel.getDbResultLiveData().observe(this, new Observer<DBResult>() {
-            @Override
-            public void onChanged(@Nullable DBResult dbResult) {
-                if (dbResult != null)
-                    Toast.makeText(
-                            ClassActivity.this, dbResult.message, Toast.LENGTH_SHORT
-                    ).show();
-            }
-        });
-    }
-
-    private void setCourse(@NonNull Course course) {
-        this.course = course;
-        toolbar.setTitle(course.profile.getCourseName());
-        toolbar.setSubtitle(course.profile.getInstitutionName());
-    }
-
-    private void setClassDay(@NonNull ClassDay classDay) {
-        this.classDay = classDay;
-        dateTV.setText(Util.getStringDate(classDay.date));
-
-        if (course == null) return;
-
-        classDay.prepareMembers(course.members);
-        memberList = new ArrayList<>(classDay.members.values());
-        if (memberList.size() == 0) {
-            currentMember = new ClassDay.Member();
-            setCurrentMemberToView();
-            return;
-        } else {
-            // Ordenamos la lista por "Apellido, Nombres" de A-Z
-            Collections.sort(
-                    memberList, Collections.reverseOrder(new Comparator<ClassDay.Member>() {
-                        @Override
-                        public int compare(ClassDay.Member o1, ClassDay.Member o2) {
-                            return o2.getFullName().compareTo(o1.getFullName());
-                        }
-                    })
-            );
-        }
-
-        recyclerView.updateList(memberList);
-
-        if (currentMember == null){
-            currentMember = memberList.get(0);
-            setCurrentMemberToView();
-            return;
-        }
-
-        for (ClassDay.Member member : memberList)
-            if (member.id.equals(currentMember.id)){
-                currentMember = member;
-                break;
-            }
-
-        if (currentMember.isNew())
-            currentMember = memberList.get(0);
-
-        setCurrentMemberToView();
-    }
-
-    private void setLayoutType() {
+    private void setLayoutType(int layoutType) {
         recyclerView.setLayoutType(layoutType);
-        setMemberBarVisibility();
-    }
-
-    private void setMemberBarVisibility() {
+        // Si estamos en modo Lista no necesitamos el View memberBar superior.
         memberBar.setVisibility(
-                (recyclerView.getLayoutType() == ClassRecyclerView.LIST) ? View.GONE : View.VISIBLE
+                (recyclerView.getLayoutType() == ClassRecyclerView.LIST) ?
+                        View.GONE : View.VISIBLE
         );
     }
 
@@ -325,17 +280,29 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
             item.setIcon(getResources().getDrawable(R.drawable.ic_grid_white_24dp));
     }
 
-    private void launchCalendar() {
+    public void onPreviousMember(@Nullable View view) {
+        classViewModel.setPreviousMember();
+    }
+
+    public void onNextMember(@Nullable View view) {
+        classViewModel.setNextMember();
+    }
+
+    public void onPreviousClass(@Nullable View view) {
+        classViewModel.setPreviousClass();
+    }
+
+    public void onNextClass(@Nullable View view) {
+        classViewModel.setNextClass();
+    }
+
+    public void onCalendar(@Nullable View view) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        ClassDay classDay = new ClassDay();
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(year, month, dayOfMonth);
-                        classDay.date = calendar.getTimeInMillis();
-                        classViewModel.saveNewClassDay(classDay);
+                        classViewModel.createClassDay(year, month, dayOfMonth);
                     }
                 },
                 Calendar.getInstance(Locale.getDefault()).get(Calendar.YEAR),
@@ -346,41 +313,26 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
         datePickerDialog.show();
     }
 
-    public void onPrevMember(@Nullable View view) {
-        if (memberList == null || memberList.size() == 0)
-            return;
-        if (currentMember == null)
-            currentMember = memberList.get(0);
+    private void setCurrentMember(MemberItem memberItem) {
 
-        currentMember = memberList.get(
-                (memberList.indexOf(currentMember) == 0) ?
-                        memberList.size() - 1 : memberList.indexOf(currentMember) - 1
-        );
-        setCurrentMemberToView();
-    }
+        this.currentMember = memberItem;
 
-    public void onNextMember(@Nullable View view) {
-        if (memberList == null || memberList.size() == 0)
-            return;
-        if (currentMember == null)
-            currentMember = memberList.get(0);
-        currentMember = memberList.get(
-                (memberList.indexOf(currentMember) == memberList.size() - 1) ?
-                        0 : memberList.indexOf(currentMember) + 1
-        );
-        setCurrentMemberToView();
-    }
-
-    private void setCurrentMemberToView() {
-        if (currentMember == null) return;
-        lastnameTV.setText(currentMember.lastname);
-        namesTV.setText(currentMember.names);
-        if (currentMember.present == null)
+        if (memberItem == null) {
+            lastnameTV.setText("");
+            namesTV.setText("");
             absentIB.setImageDrawable(getResources().getDrawable(R.drawable.ic_absent_gray));
-        else if (!currentMember.present)
-            absentIB.setImageDrawable(getResources().getDrawable(R.drawable.ic_absent_red));
-        else
+            return;
+        }
+
+        lastnameTV.setText(memberItem.lastname);
+        namesTV.setText(memberItem.names);
+
+        if (memberItem.getAttendance() == null || memberItem.getAttendance().getPresent() == null)
+            absentIB.setImageDrawable(getResources().getDrawable(R.drawable.ic_absent_gray));
+        else if (memberItem.getAttendance().getPresent())
             absentIB.setImageDrawable(getResources().getDrawable(R.drawable.ic_present_green));
+        else
+            absentIB.setImageDrawable(getResources().getDrawable(R.drawable.ic_absent_red));
     }
 
 }

@@ -28,7 +28,7 @@ public class Contact {
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("phone", phone);
-        result.put("name", name);
+        result.put("fullName", name);
 
         return result;
     }

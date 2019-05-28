@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class CellElement extends BaseElement {
 
@@ -32,54 +33,91 @@ public class CellElement extends BaseElement {
         return paragraphs;
     }
 
-    public void setIntegerValue(int value) {
-        setAttr("calcext:value-type", "float");
-        setAttr("office:value-type", "float");
-        setAttr("office:value", String.valueOf(value));
-        setTextValue(String.valueOf(value));
+    public void setIntegerValue(Integer value) {
+        if (value == null)
+            setNull();
+        else {
+            setAttr("calcext:value-type", "float");
+            setAttr("office:value-type", "float");
+            setAttr("office:value", String.valueOf(value));
+            setTextValue(String.valueOf(value));
+        }
     }
 
     public void setFloatValue(Float value) {
-        setAttr("calcext:value-type", "float");
-        setAttr("office:value-type", "float");
-        setAttr("office:value", String.format("%.3f", value).replace(",","."));
-        setTextValue(String.format("%.3f", value).replace(",","."));
+        if (value == null)
+            setNull();
+        else {
+            setAttr("calcext:value-type", "float");
+            setAttr("office:value-type", "float");
+            setAttr(
+                    "office:value",
+                    String.format(Locale.getDefault(),"%.3f", value)
+                            .replace(",",".")
+            );
+            setTextValue(
+                    String.format(Locale.getDefault(),"%.3f", value)
+                            .replace(",",".")
+            );
+        }
     }
 
     public void setPercentageValue(Float value) {
-        setAttr("calcext:value-type", "percentage");
-        setAttr("office:value-type", "percentage");
-        setAttr("office:value", String.format("%.2f", value)
-                .replace(",","."));
-        setTextValue(String.format("%d%%", (int)(value * 100)));
+        if (value == null)
+            setNull();
+        else {
+            setAttr("calcext:value-type", "percentage");
+            setAttr("office:value-type", "percentage");
+            setAttr("office:value", String.format(Locale.getDefault(), "%.2f", value)
+                    .replace(",","."));
+            setTextValue(String.format(Locale.getDefault(),"%d%%", (int)(value * 100)));
+        }
     }
 
-    public void setDate(Long longDate) {
+    public void setDate(Long value) {
+        if (value == null)
+            setNull();
+        else {
+            DateFormat format1 = new SimpleDateFormat("yyyy-mm-dd", Locale.getDefault());
+            DateFormat format2 = new SimpleDateFormat("dd/mm/yy", Locale.getDefault());
 
-        DateFormat format1 = new SimpleDateFormat("yyyy-mm-dd");
-        DateFormat format2 = new SimpleDateFormat("dd/mm/yy");
+            Date date = new Date(value);
 
-        Date date = new Date(longDate);
+            setAttr("calcext:value-type", "date");
+            setAttr("office:value-type", "date");
+            setAttr("office:date-value", format1.format(date));
+            setTextValue(format2.format(date));
+        }
 
-        setAttr("calcext:value-type", "date");
-        setAttr("office:value-type", "date");
-        setAttr("office:date-value", format1.format(date));
-        setTextValue(format2.format(date));
 
     }
 
     public void setTextValue(String... values) {
-        setTextValue(Arrays.asList(values));
+        if (values == null)
+            setNull();
+        else
+            setTextValue(Arrays.asList(values));
     }
 
     public void setTextValue(List<String> values) {
-        removeChilds();
-        TextElement textElement;
-        for (String value : values) {
-            textElement = new TextElement(getDocument());
-            textElement.setValue(value);
-            getElement().appendChild(textElement.getElement());
+        if (values == null)
+            setNull();
+        else {
+            removeChilds();
+            TextElement textElement;
+            for (String value : values) {
+                textElement = new TextElement(getDocument());
+                textElement.setValue(value);
+                getElement().appendChild(textElement.getElement());
+            }
         }
+    }
+
+    public void setNull() {
+        getElement().removeAttribute("calcext:value-type");
+        getElement().removeAttribute("office:value-type");
+        getElement().removeAttribute("office:date-value");
+        removeChilds();
     }
 
 }

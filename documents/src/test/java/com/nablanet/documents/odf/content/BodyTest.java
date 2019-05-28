@@ -5,22 +5,32 @@ import com.nablanet.documents.odf.content.spreadsheet.Spreadsheet;
 import com.nablanet.documents.odf.content.spreadsheet.summary.DataSummary;
 import com.nablanet.documents.odf.content.spreadsheet.track.DataTrack;
 import com.nablanet.documents.odf.content.spreadsheet.work.DataWork;
+import com.nablanet.documents.utils.FileManager;
 
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.transform.TransformerException;
+
+import static junit.framework.TestCase.assertNotNull;
+
 public class BodyTest {
 
     @Test
-    public void getSpreadsheet() {
+    public void getSpreadsheet() throws TransformerException, IOException {
 
-        TemplateODS templateODS = new TemplateODS();
+        File file = FileManager.getFile(TemplateODS.MODEL);
+        assertNotNull(file);
 
-        Spreadsheet spreadsheet = templateODS.body.spreadsheet;
+
+        TemplateODS templateODS = new TemplateODS(new File(file.getParentFile(), "prueba.ods"));
+
+        Spreadsheet spreadsheet = templateODS.getBody().getSpreadsheet();
 
         DataSummaryImpl dataSummary = new DataSummaryImpl(
                 "RACING CAMPEON",
@@ -52,9 +62,7 @@ public class BodyTest {
 
         spreadsheet.setData(dataSummary, dataTrack, dataWorks);
 
-        File target = templateODS.saveTo("matematica.ods");
-
-        System.out.println(target.getAbsolutePath());
+        templateODS.save();
 
     }
 
@@ -324,7 +332,7 @@ public class BodyTest {
         }
 
         @Override
-        public String getTitle() {
+        public String getName() {
             return title;
         }
 
@@ -339,7 +347,7 @@ public class BodyTest {
         }
 
         @Override
-        public String getContent() {
+        public String getTopics() {
             return content;
         }
 

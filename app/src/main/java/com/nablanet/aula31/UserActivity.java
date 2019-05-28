@@ -145,7 +145,7 @@ public class UserActivity extends AppCompatActivity {
     private void updateUser(){
 
         if (fieldName.length() == 0 || fieldName.length() >= 20){
-            fieldName.setError("El name debe tener entre 1 y 20 caracteres");
+            fieldName.setError("El fullName debe tener entre 1 y 20 caracteres");
             return;
         }
 

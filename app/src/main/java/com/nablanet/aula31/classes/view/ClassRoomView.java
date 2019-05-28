@@ -1,4 +1,4 @@
-package com.nablanet.aula31.classes;
+package com.nablanet.aula31.classes.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

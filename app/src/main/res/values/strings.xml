@@ -77,5 +77,6 @@
     <string name="about">About</string>
     <string name="title_activity_export">ExportActivity</string>
     <string name="comments">Comments...</string>
+    <string name="export">Export</string>
 
 </resources>

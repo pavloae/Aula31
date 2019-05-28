@@ -24,72 +24,66 @@ public class Spreadsheet extends BaseElement {
 
     public Spreadsheet(Element element) {
         super(element);
+    }
+
+    public void setData(DataSummary dataSummary, DataTrack dataTrack, List<? extends DataWork> dataWorks) throws XPathExpressionException {
+
         summarySheetModel = getSummarySheetModel();
         trackSheetModel = getTrackSheetModel();
         workSheetModel = getWorkSheetModel();
-    }
 
-    public void setData(DataSummary dataSummary, DataTrack dataTrack, List<DataWork> dataWorks) {
+        // Si no hay datos devolvemos el template solo como está
+        if (dataSummary == null && dataTrack == null && (dataWorks == null || dataWorks.isEmpty()))
+            return;
 
         if (dataSummary != null)
-            summarySheetModel.setData(dataSummary);
+            getSummarySheetModel().setData(dataSummary);
         else
-            removeChild(summarySheetModel);
+            removeChild(getSummarySheetModel());
 
         if (dataTrack != null)
-            trackSheetModel.setData(dataTrack);
+            getTrackSheetModel().setData(dataTrack);
         else
-            removeChild(summarySheetModel);
+            removeChild(getTrackSheetModel());
 
         if (dataWorks != null && !dataWorks.isEmpty()) {
             WorkSheet workSheet;
             for (DataWork dataWork : dataWorks) {
-                workSheet = new WorkSheet(workSheetModel.clone(true));
+                workSheet = new WorkSheet(getWorkSheetModel().clone(true));
                 workSheet.setData(dataWork);
-                insertBefore(workSheet, workSheetModel);
+                insertBefore(workSheet, getWorkSheetModel());
             }
         }
-        removeChild(workSheetModel);
+        removeChild(getWorkSheetModel());
+
     }
 
-    private SummarySheet getSummarySheetModel() {
-        try {
-            Node node = (Node) getXPath().evaluate(
-                    "./table:table[1]",
-                    getElement(), XPathConstants.NODE
-            );
-            return new SummarySheet((Element) node);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private SummarySheet getSummarySheetModel() throws XPathExpressionException {
+        if (summarySheetModel != null) return summarySheetModel;
+        Node node = (Node) getXPath().evaluate(
+                "./table:table[1]",
+                getElement(), XPathConstants.NODE
+        );
+        return new SummarySheet((Element) node);
     }
 
-    private TrackSheet getTrackSheetModel() {
-        try {
-            Node node = (Node) getXPath().evaluate(
-                    "./table:table[2]",
-                    getElement(), XPathConstants.NODE
-            );
-            return new TrackSheet((Element) node);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private TrackSheet getTrackSheetModel() throws XPathExpressionException {
+        if (trackSheetModel != null) return trackSheetModel;
+        Node node = (Node) getXPath().evaluate(
+                "./table:table[2]",
+                getElement(), XPathConstants.NODE
+        );
+        return new TrackSheet((Element) node);
     }
 
-    private WorkSheet getWorkSheetModel() {
-        try {
-            Element element = getElement();
-            Node node = (Node) getXPath().evaluate(
-                    "./table:table[3]",
-                    element, XPathConstants.NODE
-            );
-            return new WorkSheet((Element) node);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private WorkSheet getWorkSheetModel() throws XPathExpressionException {
+        if (workSheetModel != null) return workSheetModel;
+        Element element = getElement();
+        Node node = (Node) getXPath().evaluate(
+                "./table:table[3]",
+                element, XPathConstants.NODE
+        );
+        return new WorkSheet((Element) node);
     }
 
 }

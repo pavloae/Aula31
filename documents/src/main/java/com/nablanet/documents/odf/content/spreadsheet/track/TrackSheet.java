@@ -21,10 +21,12 @@ public class TrackSheet extends Sheet<DataTrack> {
 
         StudentHeaderElement studentHeaderElement;
         for (DataTrack.Member member : data.getMembers()) {
+            if (member == null) continue;
             studentHeaderElement = new StudentHeaderElement(headerFormat.clone(true));
             studentHeaderElement.setValue(member.getName());
             insertBefore(studentHeaderElement, headerFormat);
 
+            if (member.getListDay() == null) continue;
             StudentDayElement dayElement;
             for (DataTrack.Day day : member.getListDay()) {
                 dayElement = new StudentDayElement(dayFormat.clone(true));

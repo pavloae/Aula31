@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Properties;
 
 public class FileManager {
 
@@ -18,8 +19,11 @@ public class FileManager {
 
     public static File getFile(String resource) {
 
-        URL url = ClassLoader.getSystemClassLoader().getResource(resource);
-        if (url == null) return null;
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        URL url = classLoader.getResource(resource);
+
+        if (url == null)
+            return null;
 
         URI uri = null;
         try {

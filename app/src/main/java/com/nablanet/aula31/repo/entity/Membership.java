@@ -1,4 +1,4 @@
-package com.nablanet.aula31.courses;
+package com.nablanet.aula31.repo.entity;
 
 import com.google.firebase.database.Exclude;
 
@@ -17,14 +17,14 @@ public class Membership {
     public static final int EXPULSED = 3;
 
     /**
-     * Role of member on course {@link #course_id}
+     * Role of memberItem on course {@link #course_id}
      * Use with {@link #role}
      */
     public static final int STUDENT = 0;
     public static final int TEACHER = 1;
 
     @Exclude
-    public String id;
+    public String membership_id;
 
     public String user_id;
     public String course_id;
@@ -34,17 +34,6 @@ public class Membership {
     public Integer state;
 
     public Membership() {
-    }
-
-    public Membership(
-            String user_id, String course_id, String institution_name,
-            String course_name, Integer role, Integer state) {
-        this.user_id = user_id;
-        this.course_id = course_id;
-        this.institution_name = institution_name;
-        this.course_name = course_name;
-        this.role = role;
-        this.state = state;
     }
 
     public Map<String, Object> toMap() {

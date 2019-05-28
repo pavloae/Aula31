@@ -6,19 +6,17 @@ import java.util.List;
 
 public interface DataTrack extends DataSheet {
 
-    List<Member> getMembers();
+    List<? extends Member> getMembers();
 
     interface Member {
         String getName();
-        List<Day> getListDay();
+        List<? extends Day> getListDay();
     }
 
     interface Day {
-
         Long getDate();
         Integer getRate();
         String getComment();
-
     }
 
 }

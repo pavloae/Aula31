@@ -17,7 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.courses.Course;
+import com.nablanet.aula31.courses.entity.CourseExt;
 import com.nablanet.aula31.views.DayScheduleView;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.List;
 public class ScheduleCalendarActivity extends AppCompatActivity implements View.OnTouchListener {
 
     SparseArray<DayScheduleView> dayScheduleViews;
-    List<Course> courses;
+    List<CourseExt> courses;
     String userId;
     ProgressBar progressBar;
 
@@ -79,10 +79,10 @@ public class ScheduleCalendarActivity extends AppCompatActivity implements View.
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 progressBar.setVisibility(View.INVISIBLE);
-                List<Course> courses = new ArrayList<>();
-                Course course;
+                List<CourseExt> courses = new ArrayList<>();
+                CourseExt course;
                 for (DataSnapshot child : dataSnapshot.getChildren()){
-                    course = child.getValue(Course.class);
+                    course = child.getValue(CourseExt.class);
                     if (course != null && course.profile.year == Calendar.getInstance().get(Calendar.YEAR)) {
                         courses.add(course);
                     }
