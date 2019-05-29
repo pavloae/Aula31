@@ -25,9 +25,9 @@ import com.nablanet.aula31.export.factory.DataRepoFactory;
 import com.nablanet.aula31.export.factory.DataSummaryFactory;
 import com.nablanet.aula31.export.factory.DataWorkFactory;
 import com.nablanet.aula31.repo.DataResult;
+import com.nablanet.aula31.repo.SnapshotToMap;
 import com.nablanet.aula31.repo.FireBaseRepo;
 import com.nablanet.aula31.repo.Response;
-import com.nablanet.aula31.repo.entity.ClassDay;
 import com.nablanet.aula31.repo.entity.ClassTrack;
 import com.nablanet.aula31.repo.entity.Course;
 import com.nablanet.aula31.repo.entity.MemberRepo;
@@ -46,8 +46,8 @@ import java.util.concurrent.Executors;
 
 public class ExportViewModel extends ViewModel {
 
-    FireBaseRepo fireBaseRepo = FireBaseRepo.getInstance();
-    Executor executor = Executors.newSingleThreadExecutor();
+    FireBaseRepo fireBaseRepo;
+    public Executor executor = Executors.newSingleThreadExecutor();
 
     private final MutableLiveData<Response> responseLive = new MutableLiveData<>();
     private LiveData<CourseExport> courseLive;
@@ -56,6 +56,12 @@ public class ExportViewModel extends ViewModel {
     private MediatorLiveData<DataSummaryImpl> dataSummaryLive;
     private MediatorLiveData<DataTrackImpl> dataTrackLive;
     private MediatorLiveData<List<DataWorkImpl>> dataWorkListLive;
+
+    public FireBaseRepo getFireBaseRepo() {
+        if (fireBaseRepo == null)
+            fireBaseRepo = FireBaseRepo.getInstance();
+        return fireBaseRepo;
+    }
 
     @NonNull
     LiveData<Response> getResponseLive() {
@@ -66,7 +72,7 @@ public class ExportViewModel extends ViewModel {
     LiveData<CourseExport> getCourseExportLiveData(String courseId) {
         if (courseLive == null)
             courseLive = Transformations.map(
-                    fireBaseRepo.getCourse(courseId),
+                    getFireBaseRepo().getCourse(courseId),
                     new Function<Course, CourseExport>() {
                         @Override
                         public CourseExport apply(Course course) {
@@ -141,17 +147,17 @@ public class ExportViewModel extends ViewModel {
     // DATA_TRACK - Datos para la planilla de seguimiento
 
     @NonNull
-    private LiveData<DataTrackImpl> getDataTrack(final DataParams dataParams){
+    protected LiveData<DataTrackImpl> getDataTrack(final DataParams dataParams){
         if (dataTrackLive == null) {
             dataTrackLive = new MediatorLiveData<>();
-            final LiveData<DataResult> firebaseRepo = fireBaseRepo
+            final LiveData<DataResult<MemberTrack>> trackByCourse = getFireBaseRepo()
                     .getTrackByCourse(dataParams.getCourseId());
             dataTrackLive.addSource(
-                    firebaseRepo,
-                    new Observer<DataResult>() {
+                    trackByCourse,
+                    new Observer<DataResult<MemberTrack>>() {
                         @Override
                         public void onChanged(@Nullable final DataResult dataResult) {
-                            dataTrackLive.removeSource(firebaseRepo);
+                            dataTrackLive.removeSource(trackByCourse);
 
                             if (dataResult == null)
                                 dataTrackLive.setValue(null);
@@ -164,7 +170,7 @@ public class ExportViewModel extends ViewModel {
                                         )
                                 );
 
-                            else
+                            else {
                                 executor.execute(
                                         new Runnable() {
                                             @Override
@@ -175,6 +181,7 @@ public class ExportViewModel extends ViewModel {
                                             }
                                         }
                                 );
+                            }
                         }
                     });
 
@@ -187,14 +194,11 @@ public class ExportViewModel extends ViewModel {
     private void buildDataTrack(
             @NonNull final DataSnapshot dataSnapshot, @Nullable final DataParams dataParams
     ) {
+        Map<String, MemberTrack> memberTrackMap = new SnapshotToMap<>(MemberTrack.class)
+                .from(dataSnapshot);
 
-        Map<String, MemberTrack> memberTrackMap;
         if (
-                dataParams == null ||
-                        dataParams.getMemberIdList() == null ||
-                        (memberTrackMap = dataSnapshot.getValue(
-                                new GenericTypeIndicator<Map<String, MemberTrack>>() {})
-                        ) == null
+                dataParams == null || dataParams.getMemberIdList() == null || memberTrackMap == null
         ) {
             dataTrackLive.postValue(null);
             return;
@@ -236,13 +240,13 @@ public class ExportViewModel extends ViewModel {
 
             dataWorkListLive = new MediatorLiveData<>();
             final DataWorkFactory dataWorkFactory = new DataWorkFactory();
-            final LiveData<DataResult> membersRepositories = fireBaseRepo
+            final LiveData<DataResult<Object>> membersRepositories = getFireBaseRepo()
                     .getMembersRepositories(dataParams.getCourseId());
-            final LiveData<DataResult> courseWorks = fireBaseRepo
+            final LiveData<DataResult<Object>> courseWorks = getFireBaseRepo()
                     .getCourseWorks(dataParams.getCourseId());
 
             dataWorkListLive.addSource(
-                    membersRepositories, new Observer<DataResult>() {
+                    membersRepositories, new Observer<DataResult<Object>>() {
                         @Override
                         public void onChanged(@Nullable final DataResult dataResult) {
                             dataWorkListLive.removeSource(membersRepositories);
@@ -264,7 +268,7 @@ public class ExportViewModel extends ViewModel {
             );
 
             dataWorkListLive.addSource(
-                    courseWorks, new Observer<DataResult>() {
+                    courseWorks, new Observer<DataResult<Object>>() {
                         @Override
                         public void onChanged(@Nullable final DataResult dataResult) {
                             dataWorkListLive.removeSource(courseWorks);
@@ -330,7 +334,7 @@ public class ExportViewModel extends ViewModel {
 
             dataSummaryLive = new MediatorLiveData<>();
             final DataSummaryFactory dataSummaryFactory = new DataSummaryFactory(courseLive.getValue());
-            final LiveData<DataResult> classDayList = fireBaseRepo
+            final LiveData<DataResult<Object>> classDayList = getFireBaseRepo()
                     .getCourseClasses(dataParams.getCourseId());
 
             dataSummaryLive.addSource(
@@ -373,7 +377,7 @@ public class ExportViewModel extends ViewModel {
             );
 
             dataSummaryLive.addSource(
-                    classDayList, new Observer<DataResult>() {
+                    classDayList, new Observer<DataResult<Object>>() {
                         @Override
                         public void onChanged(@Nullable final DataResult dataResult) {
                             dataSummaryLive.removeSource(classDayList);

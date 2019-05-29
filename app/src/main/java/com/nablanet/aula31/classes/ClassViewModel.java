@@ -178,7 +178,7 @@ public class ClassViewModel extends ViewModel {
             classDayList = new MediatorLiveData<>();
             classDayList.addSource(
                     fireBaseRepo.getCourseClasses(courseId.getValue()),
-                    new Observer<DataResult>() {
+                    new Observer<DataResult<Object>>() {
                         @Override
                         public void onChanged(@Nullable DataResult dataSnapshot) {
                             if (dataSnapshot == null) {
