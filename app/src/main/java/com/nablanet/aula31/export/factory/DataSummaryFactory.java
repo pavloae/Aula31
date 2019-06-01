@@ -2,14 +2,16 @@ package com.nablanet.aula31.export.factory;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import com.nablanet.aula31.export.data.DataParams;
 import com.nablanet.aula31.export.data.DataSummaryImpl;
 import com.nablanet.aula31.export.data.DataTrackImpl;
 import com.nablanet.aula31.export.data.DataWorkImpl;
-import com.nablanet.aula31.export.entity.ClassDayExport;
 import com.nablanet.aula31.export.entity.CourseExport;
 import com.nablanet.aula31.export.entity.MemberCourseExport;
+import com.nablanet.aula31.repo.entity.Attendance;
+import com.nablanet.aula31.repo.entity.ClassDay;
 import com.nablanet.aula31.repo.entity.CourseWork;
 import com.nablanet.documents.odf.content.spreadsheet.summary.DataSummary;
 
@@ -22,12 +24,13 @@ public class DataSummaryFactory {
 
     private DataTrackImpl dataTrack;
     private List<DataWorkImpl> dataWorkList;
-    private List<ClassDayExport> classDayList;
+    private List<ClassDay> classDayList;
 
-    private boolean dataTrackCompleted, dataWorkCompleted, classDayCompleted;
+    private boolean courseExportCompleted, dataTrackCompleted, dataWorkCompleted, classDayCompleted;
 
-    public DataSummaryFactory(CourseExport courseExport) {
+    public void setCourseExport(CourseExport courseExport) {
         this.courseExport = courseExport;
+        courseExportCompleted = true;
     }
 
     public void setDataTrack(@Nullable DataTrackImpl dataTrack) {
@@ -40,15 +43,16 @@ public class DataSummaryFactory {
         dataWorkCompleted = true;
     }
 
-    public void setClassDayList(@Nullable List<ClassDayExport> classDayList) {
+    public void setClassDayList(@Nullable List<ClassDay> classDayList) {
         this.classDayList = classDayList;
         classDayCompleted = true;
     }
 
     public boolean isComplete() {
-        return dataWorkCompleted && dataTrackCompleted && classDayCompleted;
+        return courseExportCompleted && dataWorkCompleted && dataTrackCompleted && classDayCompleted;
     }
 
+    @WorkerThread
     public DataSummaryImpl getDataSummary(@NonNull DataParams dataParams) {
 
         DataSummaryImpl dataSummary = new DataSummaryImpl();
@@ -90,9 +94,13 @@ public class DataSummaryFactory {
         int present = 0;
         int absent = 0;
         if (classDayList == null) return null;
-        for (ClassDayExport classDay : classDayList) {
-            if (classDay == null || classDay.isPresent(memberId) == null) continue;
-            if (classDay.isPresent(memberId))
+        for (ClassDay classDay : classDayList) {
+            if (classDay == null)
+                continue;
+            Boolean memberAttendance = isPresent(classDay, memberId);
+            if (memberAttendance == null)
+                continue;
+            if (memberAttendance)
                 present++;
             else
                 absent++;
@@ -100,6 +108,17 @@ public class DataSummaryFactory {
         int total = present + absent;
         if (total == 0) return null;
         return present / (float) total;
+    }
+
+    private Boolean isPresent(ClassDay classDay, String memberId) {
+        Attendance attendance;
+        if (
+                classDay.members == null
+                        || !classDay.members.containsKey(memberId)
+                        || (attendance = classDay.members.get(memberId)) == null
+        )
+            return null;
+        return attendance.getPresent();
     }
 
     @Nullable

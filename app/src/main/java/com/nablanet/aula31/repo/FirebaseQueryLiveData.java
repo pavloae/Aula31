@@ -28,13 +28,16 @@ public class FirebaseQueryLiveData<T> extends LiveData<DataResult<T>> {
 
     private final Query query;
     private final MyValueEventListener listener = new MyValueEventListener();
+    private final Class<T> clazz;
 
-    public FirebaseQueryLiveData(Query query) {
+    public FirebaseQueryLiveData(@NonNull Query query, @NonNull Class<T> clazz) {
         this.query = query;
+        this.clazz = clazz;
     }
 
-    public FirebaseQueryLiveData(DatabaseReference ref) {
+    public FirebaseQueryLiveData(@NonNull DatabaseReference ref, @NonNull Class<T> clazz) {
         this.query = ref;
+        this.clazz = clazz;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class FirebaseQueryLiveData<T> extends LiveData<DataResult<T>> {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             if (!listenerRemovePending)
-                setValue(new DataResult<T>(dataSnapshot));
+                setValue(new DataResult<>(dataSnapshot, new SnapshotToMap<>(clazz)));
         }
 
         @Override

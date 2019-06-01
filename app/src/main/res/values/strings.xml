@@ -75,8 +75,12 @@
     <string name="add_class">Add class…</string>
     <string name="help">Help</string>
     <string name="about">About</string>
-    <string name="title_activity_export">ExportActivity</string>
+    <string name="title_activity_export">Summary</string>
     <string name="comments">Comments...</string>
     <string name="export">Export</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="title_from">From…</string>
+    <string name="title_to">To…</string>
 
 </resources>

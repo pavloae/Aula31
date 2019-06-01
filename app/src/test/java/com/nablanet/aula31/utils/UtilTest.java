@@ -64,6 +64,34 @@ public class UtilTest {
 
     }
 
+    @Test
+    public void getStringDate() {
+    }
+
+    @Test
+    public void isSameDay() {
+    }
+
+    @Test
+    public void isBetween() {
+
+        Assert.assertTrue(Util.isBetween(0L, 1000L, null));
+        Assert.assertTrue(Util.isBetween(null, 1000L, 2000L));
+
+        Assert.assertFalse(Util.isBetween(2000L, 1000L, 1500L));
+        Assert.assertFalse(Util.isBetween(null, 4000L, 2000L));
+
+
+    }
+
+    @Test
+    public void isExternalStorageWritable() {
+    }
+
+    @Test
+    public void isExternalStorageReadable() {
+    }
+
     public class ClassDay {
         public Long date;
         public String comment;

@@ -1,5 +1,9 @@
 package com.nablanet.aula31.repo;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
@@ -9,10 +13,12 @@ public class DataResult<T> {
 
     private DataSnapshot dataSnapshot;
     private DatabaseError databaseError;
-    private Map map;
+    private SnapshotToMap<T> snapshotToMap;
+    private Map<String, T> map;
 
-    public DataResult(DataSnapshot dataSnapshot) {
+    public DataResult(@NonNull DataSnapshot dataSnapshot, @NonNull SnapshotToMap<T> snapshotToMap) {
         this.dataSnapshot = dataSnapshot;
+        this.snapshotToMap = snapshotToMap;
     }
 
     public DataResult(DatabaseError databaseError) {
@@ -27,11 +33,11 @@ public class DataResult<T> {
         return databaseError;
     }
 
-    public void makeMapFrom(SnapshotToMap snapshotToMap) {
-        map = snapshotToMap.from(dataSnapshot);
-    }
-
-    public Map getMap() {
+    @Nullable
+    @WorkerThread
+    public Map<String, T> getMap() {
+        if (map == null)
+            map = snapshotToMap.from(dataSnapshot);
         return map;
     }
 

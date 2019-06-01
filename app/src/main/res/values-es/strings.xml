@@ -36,4 +36,7 @@
     <string name="add_class">Agregar clase...</string>
     <string name="comments">Comentarios de la clase...</string>
     <string name="export">Export</string>
+    <string name="title_activity_export">Planillas</string>
+    <string name="title_from">Desde...</string>
+    <string name="title_to">Hasta...</string>
 </resources>

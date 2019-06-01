@@ -1,6 +1,7 @@
 package com.nablanet.aula31.export.factory;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import com.nablanet.aula31.export.data.DataParams;
 import com.nablanet.aula31.export.data.DataWorkImpl;
@@ -30,6 +31,7 @@ public class DataWorkFactory {
     }
 
     @Nullable
+    @WorkerThread
     public List<DataWorkImpl> getDataWorkList(@Nullable DataParams dataParams) {
 
         if (courseWorkMap == null || courseWorkMap.size() == 0 || dataParams == null)

@@ -13,7 +13,9 @@ import com.google.firebase.database.Query;
 import com.nablanet.aula31.repo.entity.ClassDay;
 import com.nablanet.aula31.repo.entity.Course;
 import com.nablanet.aula31.repo.entity.CourseProfile;
+import com.nablanet.aula31.repo.entity.CourseWork;
 import com.nablanet.aula31.repo.entity.Member;
+import com.nablanet.aula31.repo.entity.MemberRepo;
 import com.nablanet.aula31.repo.entity.MemberTrack;
 import com.nablanet.aula31.repo.entity.Membership;
 
@@ -59,8 +61,8 @@ public class FireBaseRepo {
     public LiveData<Course> getCourse(String courseId) {
         return Transformations.map(
                 new FirebaseQueryLiveData<>(
-                        FirebaseDatabase.getInstance()
-                                .getReference("courses").child(courseId)
+                        FirebaseDatabase.getInstance().getReference("courses").child(courseId),
+                        Object.class
                 ),
                 new Function<DataResult<Object>, Course>() {
                     @Override
@@ -76,7 +78,8 @@ public class FireBaseRepo {
         return Transformations.map(
                 new FirebaseQueryLiveData<>(
                         FirebaseDatabase.getInstance()
-                                .getReference("courses").child(courseId).child("members")
+                                .getReference("courses").child(courseId).child("members"),
+                        Object.class
                 ),
                 new Function<DataResult<Object>, Map<String, Member>>() {
                     @Override
@@ -94,11 +97,11 @@ public class FireBaseRepo {
         );
     }
 
-    public LiveData<DataResult<Object>> getCourseClasses(String courseId) {
+    public LiveData<DataResult<ClassDay>> getCourseClasses(String courseId) {
         return new FirebaseQueryLiveData<>(
-                FirebaseDatabase.getInstance()
-                        .getReference("classes").orderByChild("course_id")
-                        .equalTo(courseId).limitToFirst(190)
+                FirebaseDatabase.getInstance().getReference("classes")
+                        .orderByChild("course_id").equalTo(courseId).limitToFirst(190),
+                ClassDay.class
         );
     }
 
@@ -113,25 +116,27 @@ public class FireBaseRepo {
 
     public LiveData<DataResult<MemberTrack>> getTrackByCourse(String courseId) {
         return new FirebaseQueryLiveData<>(
-                FirebaseDatabase.getInstance()
-                        .getReference("tracking").orderByChild("course_id")
-                        .equalTo(courseId).limitToFirst(30)
+                FirebaseDatabase.getInstance().getReference("tracking")
+                        .orderByChild("course_id").equalTo(courseId).limitToFirst(30),
+                MemberTrack.class
         );
     }
 
-    public LiveData<DataResult<Object>> getMembersRepositories(String courseId) {
+    public LiveData<DataResult<MemberRepo>> getMembersRepositories(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance()
                         .getReference("works").orderByChild("course_id")
-                        .equalTo(courseId).limitToFirst(30)
+                        .equalTo(courseId).limitToFirst(30),
+                MemberRepo.class
         );
     }
 
-    public LiveData<DataResult<Object>> getCourseWorks(String courseId) {
+    public LiveData<DataResult<CourseWork>> getCourseWorks(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance()
                         .getReference("repository").orderByChild("course_id")
-                        .equalTo(courseId).limitToFirst(30)
+                        .equalTo(courseId).limitToFirst(30),
+                CourseWork.class
         );
     }
 
@@ -145,6 +150,8 @@ public class FireBaseRepo {
                 .child("members").child(memberId).setValue(null);
     }
 
-
+    public String getUid(){
+        return FirebaseAuth.getInstance().getUid();
+    }
 
 }

@@ -178,21 +178,15 @@ public class ClassViewModel extends ViewModel {
             classDayList = new MediatorLiveData<>();
             classDayList.addSource(
                     fireBaseRepo.getCourseClasses(courseId.getValue()),
-                    new Observer<DataResult<Object>>() {
+                    new Observer<DataResult<ClassDay>>() {
                         @Override
-                        public void onChanged(@Nullable DataResult dataSnapshot) {
-                            if (dataSnapshot == null) {
+                        public void onChanged(@Nullable DataResult<ClassDay> dataSnapshot) {
+                            if (dataSnapshot == null || dataSnapshot.getMap() == null)
                                 classDayList.setValue(null);
-                                return;
-                            }
-                            List<ClassDay> classDays = new ArrayList<>();
-                            for (DataSnapshot data : dataSnapshot.getDataSnapshot().getChildren()) {
-                                if (data == null) continue;
-                                ClassDay classDay = data.getValue(ClassDay.class);
-                                if (classDay == null) continue;
-                                classDays.add(classDay);
-                            }
-                            classDayList.setValue(classDays);
+                            else
+                                classDayList.setValue(
+                                        new ArrayList<>(dataSnapshot.getMap().values())
+                                );
                         }
                     }
             );

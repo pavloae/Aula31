@@ -1,26 +1,25 @@
 package com.nablanet.aula31.export;
 
 import android.app.DatePickerDialog;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nablanet.aula31.R;
 import com.nablanet.aula31.classes.ClassActivity;
@@ -29,6 +28,8 @@ import com.nablanet.aula31.export.data.DataRepo;
 import com.nablanet.aula31.export.entity.CourseExport;
 import com.nablanet.aula31.export.entity.MemberCourseExport;
 import com.nablanet.aula31.export.view.MemberAdapter;
+import com.nablanet.aula31.export.viewmodel.CourseViewModel;
+import com.nablanet.aula31.export.viewmodel.RepoViewModel;
 import com.nablanet.aula31.repo.Response;
 import com.nablanet.documents.odf.TemplateODS;
 import com.nablanet.documents.odf.content.Body;
@@ -46,85 +47,54 @@ import javax.xml.xpath.XPathExpressionException;
 
 public class ExportActivity extends AppCompatActivity {
 
-    Toolbar toolbar;
     ProgressBar progressBar;
 
-    ExportViewModel exportViewModel;
-
     TextView institutionTV, subjectTV;
-    Button fromSpinner, toSpinner;
-    CheckBox checkBox;
     RecyclerView recyclerView;
+
     MemberAdapter adapter;
 
-    String courseId;
-    CourseExport courseExport;
-    Long from, to;
+    DataParams dataParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        dataParams = new DataParams();
+        if (getIntent().getExtras() != null)
+            dataParams.setCourseId(getIntent().getExtras().getString(ClassActivity.COURSE_ID_KEY));
 
         progressBar = findViewById(R.id.progressBar);
 
         institutionTV = findViewById(R.id.institution_tv);
         subjectTV = findViewById(R.id.subject_tv);
 
-        fromSpinner = findViewById(R.id.from_bt);
-        toSpinner = findViewById(R.id.to_bt);
-
-        checkBox = findViewById(R.id.checkbox);
-
         recyclerView = findViewById(R.id.members_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MemberAdapter(new ArrayList<MemberCourseExport>(), R.layout.item_list_export);
         recyclerView.setAdapter(adapter);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                queryDataReport();
-            }
-        });
-
-        bindViewModel();
+        if (dataParams.getCourseId() != null)
+            bindViewModel();
+        else
+            finish();
 
     }
 
     private void bindViewModel() {
 
-        if (getIntent().getExtras() == null) return;
-        courseId = getIntent().getExtras().getString(ClassActivity.COURSE_ID_KEY);
-        if (courseId == null) {
-            Snackbar.make(toolbar, "No especificó curso", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
-            return;
-        }
-
         progressBar.setVisibility(View.VISIBLE);
 
-        exportViewModel = ViewModelProviders.of(this).get(ExportViewModel.class);
-
-        //Escuchamos las respuestas
-        exportViewModel.getResponseLive().observe(this, new Observer<Response>() {
-            @Override
-            public void onChanged(@Nullable Response response) {
-                progressBar.setVisibility(View.INVISIBLE);
-                if (response != null)
-                    Snackbar.make(toolbar, response.getMessage(), Snackbar.LENGTH_SHORT)
-                            .setAction("Action", null).show();
-            }
-        });
-        exportViewModel.getCourseExportLiveData(courseId).observe(
-                this, new Observer<CourseExport>() {
+        ViewModelProviders.of(this).get(CourseViewModel.class)
+                .getCourseExportLiveData(dataParams.getCourseId())
+                .observe(this, new Observer<CourseExport>() {
                     @Override
                     public void onChanged(@Nullable CourseExport courseExport) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        ExportActivity.this.courseExport = courseExport;
+                        dataParams.setCourseExport(courseExport);
                         if (courseExport != null) {
                             institutionTV.setText(courseExport.institutionName);
                             subjectTV.setText(courseExport.getSubjectFullName());
@@ -135,27 +105,53 @@ public class ExportActivity extends AppCompatActivity {
                             adapter.updateMembers(new ArrayList<MemberCourseExport>());
                         }
                     }
-                }
-        );
+                });
+
+        ViewModelProviders.of(this).get(RepoViewModel.class)
+                .getResponseLive()
+                .observe(this, new Observer<Response>() {
+                    @Override
+                    public void onChanged(@Nullable Response response) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        if (response != null)
+                            Toast.makeText(
+                                    ExportActivity.this,
+                                    response.getMessage(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                    }
+                });
+
     }
 
-    private void queryDataReport() {
+    public void queryDataReport(View view) {
 
-        DataParams dataParams = new DataParams(
-            this.courseId, adapter.getMemberKeyList(true), from, to
-        );
+        if (dataParams.getCourseExport() == null) {
+            Toast.makeText(
+                    this, "No hay datos del curso...", Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
+
+        dataParams.setMemberIdList(adapter.getMemberKeyList(true));
 
         progressBar.setVisibility(View.VISIBLE);
 
-        exportViewModel.getDataRepoLive(dataParams).observe(
-                ExportActivity.this, new Observer<DataRepo>() {
-                    @Override
-                    public void onChanged(@Nullable DataRepo dataRepo) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        if (dataRepo != null)
-                            setDataRepo(dataRepo);
-                    }
-                });
+        ViewModelProviders.of(this).get(RepoViewModel.class).getDataRepoLive(dataParams)
+                .observe(this, new Observer<DataRepo>() {
+            @Override
+            public void onChanged(@Nullable DataRepo dataRepo) {
+                progressBar.setVisibility(View.INVISIBLE);
+                if (dataRepo != null)
+                    setDataRepo(dataRepo);
+                else
+                    Toast.makeText(
+                            ExportActivity.this,
+                            "No hay datos para la planilla...",
+                            Toast.LENGTH_SHORT
+                    ).show();
+            }
+        });
     }
 
     private void setDataRepo(@NonNull DataRepo dataRepo) {
@@ -163,8 +159,9 @@ public class ExportActivity extends AppCompatActivity {
         if (file != null)
             sendByEmail(file);
         else
-            Snackbar.make(toolbar, "No hay archivo", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
+            Toast.makeText(
+                    this, "No hay archivo", Toast.LENGTH_SHORT
+            ).show();
     }
 
     private void sendByEmail(@NonNull File file) {
@@ -189,8 +186,9 @@ public class ExportActivity extends AppCompatActivity {
 
         File templateDir = new File(getCacheDir(), "template");
         if (!templateDir.exists() && !templateDir.mkdirs()) {
-            Snackbar.make(toolbar, "Error al crear el directorio...", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
+            Toast.makeText(
+                    this, "Error al crear el directorio...", Toast.LENGTH_SHORT
+            ).show();
             return null;
         }
 
@@ -217,49 +215,76 @@ public class ExportActivity extends AppCompatActivity {
 
     @Nullable
     private String getFileName() {
-        if (courseExport == null) return null;
+        if (dataParams.getCourseExport() == null) return null;
         return String.format(
                 Locale.getDefault(),
                 "%s-%s%s.ods",
-                courseExport.subjectName, courseExport.subjectGrade, courseExport.classroom
+                dataParams.getCourseExport().subjectName,
+                dataParams.getCourseExport().subjectGrade,
+                dataParams.getCourseExport().classroom
         );
     }
 
     public void onDateButton(final View view) {
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                new DatePickerDialog.OnDateSetListener() {
+        final DatePickerDialog.OnDateSetListener dateSetListener;
+        String title;
+
+        switch (view.getId()) {
+            case R.id.from_bt:
+
+                title = getResources().getString(R.string.title_from);
+
+                dateSetListener = new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker v, int year, int month, int dayOfMonth) {
                         Calendar calendar = DateFormat.getDateInstance().getCalendar();
-                        calendar.set(
-                                year, month, dayOfMonth,
-                                (view.getId() == R.id.from_bt) ? 0 : 23,
-                                (view.getId() == R.id.from_bt) ? 0 : 59,
-                                (view.getId() == R.id.from_bt) ? 0 : 59
-                        );
-                        if (view.getId() == R.id.from_bt)
-                            from = calendar.getTimeInMillis();
-                        else
-                            to = calendar.getTimeInMillis();
-
-                        Log.d("TAG", "Time from: " + from);
-                        Log.d("TAG", "Time to: " + to);
+                        calendar.set(year, month, dayOfMonth,0, 0, 0);
+                        dataParams.setFrom(calendar.getTimeInMillis());
                         ((Button) view).setText(
                                 String.format(
                                         Locale.getDefault(),
-                                        "%d/%d/%d",
-                                        dayOfMonth, month, year
+                                        "%d/%d/%d", dayOfMonth, month + 1, year
                                 )
                         );
                     }
-                },
+                };
+
+                break;
+
+            case R.id.to_bt:
+
+                title = getResources().getString(R.string.title_to);
+
+                dateSetListener = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker v, int year, int month, int dayOfMonth) {
+                        Calendar calendar = DateFormat.getDateInstance().getCalendar();
+                        calendar.set(year, month, dayOfMonth, 23, 59, 59);
+                        dataParams.setTo(calendar.getTimeInMillis());
+                        ((Button) view).setText(
+                                String.format(
+                                        Locale.getDefault(),
+                                        "%d/%d/%d", dayOfMonth, month + 1, year
+                                )
+                        );
+                    }
+                };
+
+                break;
+
+                default:
+                return;
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                dateSetListener,
                 Calendar.getInstance(Locale.getDefault()).get(Calendar.YEAR),
                 Calendar.getInstance(Locale.getDefault()).get(Calendar.MONTH),
                 Calendar.getInstance(Locale.getDefault()).get(Calendar.DAY_OF_MONTH)
         );
-        datePickerDialog.setTitle("Selecciona el día");
+        datePickerDialog.setTitle(title);
         datePickerDialog.show();
     }
 

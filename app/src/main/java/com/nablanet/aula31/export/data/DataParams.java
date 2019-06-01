@@ -3,6 +3,8 @@ package com.nablanet.aula31.export.data;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.nablanet.aula31.export.entity.CourseExport;
+
 import java.util.List;
 
 public class DataParams {
@@ -12,19 +14,41 @@ public class DataParams {
     private Long from, to;
     private String teacher;
 
+    private CourseExport courseExport;
+
+    public DataParams() {
+    }
+
     public DataParams(
-            @NonNull String courseId,
+            @NonNull CourseExport courseExport,
             @Nullable List<String> memberIdList,
             @Nullable Long from, @Nullable Long to
     ) {
-        this.courseId = courseId;
+        this.courseExport = courseExport;
+        this.courseId = courseExport.courseId;
         this.memberIdList = memberIdList;
         this.from = from;
         this.to = to;
     }
 
+    public void setCourseExport(CourseExport courseExport) {
+        this.courseExport = courseExport;
+    }
+
+    public CourseExport getCourseExport() {
+        return courseExport;
+    }
+
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
+    }
+
     public String getCourseId() {
         return courseId;
+    }
+
+    public void setMemberIdList(List<String> memberIdList) {
+        this.memberIdList = memberIdList;
     }
 
     @Nullable
@@ -46,5 +70,13 @@ public class DataParams {
 
     public void setTeacher(String teacher) {
         this.teacher = teacher;
+    }
+
+    public void setFrom(Long from) {
+        this.from = from;
+    }
+
+    public void setTo(Long to) {
+        this.to = to;
     }
 }

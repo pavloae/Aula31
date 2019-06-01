@@ -3,6 +3,8 @@ package com.nablanet.aula31.utils;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 
+import com.nablanet.aula31.repo.entity.ClassDay;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,7 +13,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -49,15 +54,24 @@ public class Util {
                 cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
     }
 
-    public static boolean isBetween(@Nullable Long from, @Nullable Long to, @Nullable Long date) {
-        if (date == null)
-            return false;
+    /**
+     * Analiza si la fecha ingresada se encuentra entre dos límites. Compara los milisegundo
+     *
+     * @param from Fecha límite inferior especificada por un valor Long indicando los milisegundos
+     * @param to Fecha límite superior especificada por un valor Long indicando los milisegundos
+     * @param date Fecha a contemplar
+     * @return Verdadero si no hay límites o la fecha ingresada no es nula y
+     * se encuentra entre los límites, si estos existen.
+     */
+    public static boolean isBetween(@Nullable Long from, @Nullable Long date, @Nullable Long to) {
         if (from == null && to == null)
             return true;
-        if (from == null)
+        if (from == null && date != null)
             return date <= to;
-        if (to == null)
+        if (to == null && date != null)
             return date >= from;
+        if (date == null)
+            return false;
         return date >= from && date <= to;
     }
 
