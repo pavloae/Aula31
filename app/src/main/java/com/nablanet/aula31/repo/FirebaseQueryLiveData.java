@@ -1,6 +1,6 @@
 package com.nablanet.aula31.repo;
 
-import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -10,9 +10,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.nablanet.aula31.repo.entity.MemberTrack;
 
-public class FirebaseQueryLiveData<T> extends LiveData<DataResult<T>> {
+public class FirebaseQueryLiveData<T> extends MutableLiveData<DataResult<T>> {
 
     private static final String LOG_TAG = "FirebaseQueryLiveData";
 
@@ -68,7 +67,7 @@ public class FirebaseQueryLiveData<T> extends LiveData<DataResult<T>> {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             if (!listenerRemovePending)
-                setValue(new DataResult<>(dataSnapshot, new SnapshotToMap<>(clazz)));
+                setValue(new DataResult<>(dataSnapshot, new SnapshotFactory<>(clazz)));
         }
 
         @Override

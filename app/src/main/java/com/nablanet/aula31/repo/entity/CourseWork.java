@@ -30,7 +30,7 @@ public class CourseWork {
     @Exclude
     Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("course_id", course_id);
+        map.put("courseId", course_id);
         map.put("type", type);
         map.put("modality", modality);
         map.put("fullName", name);

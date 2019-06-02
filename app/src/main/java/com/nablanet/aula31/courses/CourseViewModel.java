@@ -171,7 +171,7 @@ public class CourseViewModel extends ViewModel {
     void updateCourseProfile(final String courseKey, final CourseProfileExt courseProfileExt) {
 
         FirebaseDatabase.getInstance().getReference("memberships")
-                .orderByChild("course_id").equalTo(courseKey).limitToFirst(50)
+                .orderByChild("courseId").equalTo(courseKey).limitToFirst(50)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

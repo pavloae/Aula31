@@ -13,12 +13,13 @@ public class DataResult<T> {
 
     private DataSnapshot dataSnapshot;
     private DatabaseError databaseError;
-    private SnapshotToMap<T> snapshotToMap;
+    private SnapshotFactory<T> snapshotFactory;
     private Map<String, T> map;
+    private T value;
 
-    public DataResult(@NonNull DataSnapshot dataSnapshot, @NonNull SnapshotToMap<T> snapshotToMap) {
+    public DataResult(@NonNull DataSnapshot dataSnapshot, @NonNull SnapshotFactory<T> snapshotFactory) {
         this.dataSnapshot = dataSnapshot;
-        this.snapshotToMap = snapshotToMap;
+        this.snapshotFactory = snapshotFactory;
     }
 
     public DataResult(DatabaseError databaseError) {
@@ -37,8 +38,14 @@ public class DataResult<T> {
     @WorkerThread
     public Map<String, T> getMap() {
         if (map == null)
-            map = snapshotToMap.from(dataSnapshot);
+            map = snapshotFactory.toMap(dataSnapshot);
         return map;
+    }
+
+    public T getValue() {
+        if (value == null)
+            value = snapshotFactory.toValue(dataSnapshot);
+        return value;
     }
 
 }

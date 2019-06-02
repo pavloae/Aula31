@@ -9,7 +9,7 @@ import com.google.firebase.database.DatabaseError;
 import com.nablanet.aula31.export.data.DataParams;
 import com.nablanet.aula31.export.data.DataTrackImpl;
 import com.nablanet.aula31.export.data.DataWorkImpl;
-import com.nablanet.aula31.export.entity.CourseExport;
+import com.nablanet.aula31.export.entity.CourseExt;
 import com.nablanet.aula31.export.viewmodel.RepoViewModel;
 import com.nablanet.aula31.repo.DataResult;
 import com.nablanet.aula31.repo.FireBaseRepo;
@@ -20,7 +20,6 @@ import com.nablanet.aula31.repo.entity.MemberTrack;
 import com.nablanet.aula31.repo.entity.Observation;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,12 +63,12 @@ public class RepoViewModelTest {
         RepoViewModel viewModel = mock(RepoViewModel.class);
         viewModel.executor = new MainExecutor();
 
-        DataParams dataParams = new DataParams("course1", null, null, null);
+        DataParams dataParams = null;//new DataParams("course1", null, null, null);
 
         MutableLiveData<DataTrackImpl> dataTrackLiveData = new MutableLiveData<>();
         MutableLiveData<List<DataWorkImpl>> dataWorkListLiveData = new MutableLiveData<>();
         MutableLiveData<DataResult<ClassDay>> dataResultLiveData = new MutableLiveData<>();
-        MutableLiveData<CourseExport> courseExportMutableLiveData = new MutableLiveData<>();
+        MutableLiveData<CourseExt> courseExportMutableLiveData = new MutableLiveData<>();
 
         //when(viewModel.getFireBaseRepo()).thenReturn(mockedFirebaseRepo);
         when(viewModel.getResponseLive()).thenCallRealMethod();
@@ -154,7 +153,7 @@ public class RepoViewModelTest {
         memberList.add("member2");
         memberList.add("member3");
 
-        DataParams dataParams = new DataParams("curso1", memberList, null, null);
+        DataParams dataParams = null;//new DataParams("curso1", memberList, null, null);
 
 
         liveData.postValue(dataResult);
@@ -166,16 +165,12 @@ public class RepoViewModelTest {
 
         // Si no hay miembros en el curso y no hay una lista de miembros
         Map<String, MemberTrack> emptyMemberTrackMap = new HashMap<>();
-        DataParams dataParamsNonList = new DataParams(
-                "course1", null, null, null
-        );
+        DataParams dataParamsNonList = null;//new DataParams("course1", null, null, null);
         //Assert.assertNull(viewModel.postDataTrack(emptyMemberTrackMap, dataParamsNonList));
 
         // Si no hay miembros en el curso y no hay miembros en la lista de selección
         List<String> emptyMemberIdList = new ArrayList<>();
-        DataParams dataParamsEmptyList = new DataParams(
-                "course1", emptyMemberIdList, null, null
-        );
+        DataParams dataParamsEmptyList = null;//new DataParams("course1", emptyMemberIdList, null, null);
         //Assert.assertNull(viewModel.postDataTrack(emptyMemberTrackMap, dataParamsEmptyList));
 
         // Si hay miembros en el curso pero no hay miembros en la lista de selección
@@ -192,7 +187,7 @@ public class RepoViewModelTest {
         memberIdList.add("member6");
         memberIdList.add("member7");
         memberIdList.add("member9");
-        DataParams dataParams = new DataParams("course1", memberIdList, null, null);
+        DataParams dataParams = null;//new DataParams("course1", memberIdList, null, null);
         //Assert.assertNull(viewModel.postDataTrack(emptyMemberTrackMap, dataParams));
 
         // Si hay miembros en el curso y hay una lista de selección pero no coincide ninguno

@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SnapshotToMapTest {
+public class SnapshotFactoryTest {
 
     @Before
     public void setUp() throws Exception {

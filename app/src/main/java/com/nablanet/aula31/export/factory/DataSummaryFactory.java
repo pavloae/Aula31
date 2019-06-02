@@ -8,7 +8,7 @@ import com.nablanet.aula31.export.data.DataParams;
 import com.nablanet.aula31.export.data.DataSummaryImpl;
 import com.nablanet.aula31.export.data.DataTrackImpl;
 import com.nablanet.aula31.export.data.DataWorkImpl;
-import com.nablanet.aula31.export.entity.CourseExport;
+import com.nablanet.aula31.export.entity.CourseExt;
 import com.nablanet.aula31.export.entity.MemberCourseExport;
 import com.nablanet.aula31.repo.entity.Attendance;
 import com.nablanet.aula31.repo.entity.ClassDay;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class DataSummaryFactory {
 
-    private CourseExport courseExport;
+    private CourseExt courseExt;
 
     private DataTrackImpl dataTrack;
     private List<DataWorkImpl> dataWorkList;
@@ -28,8 +28,8 @@ public class DataSummaryFactory {
 
     private boolean courseExportCompleted, dataTrackCompleted, dataWorkCompleted, classDayCompleted;
 
-    public void setCourseExport(CourseExport courseExport) {
-        this.courseExport = courseExport;
+    public void setCourseExt(CourseExt courseExt) {
+        this.courseExt = courseExt;
         courseExportCompleted = true;
     }
 
@@ -57,11 +57,11 @@ public class DataSummaryFactory {
 
         DataSummaryImpl dataSummary = new DataSummaryImpl();
 
-        if (courseExport != null) {
-            dataSummary.period = courseExport.period;
-            dataSummary.subject = courseExport.subjectName;
-            dataSummary.year = courseExport.subjectGrade;
-            dataSummary.classroom = courseExport.classroom;
+        if (courseExt != null) {
+            dataSummary.period = courseExt.period;
+            dataSummary.subject = courseExt.subjectName;
+            dataSummary.year = courseExt.subjectGrade;
+            dataSummary.classroom = courseExt.classroom;
             dataSummary.teacher = dataParams.getTeacher();
         }
 
@@ -70,7 +70,7 @@ public class DataSummaryFactory {
 
             DataSummaryImpl.MemberImpl member;
             for (String memberId : dataParams.getMemberIdList()) {
-                MemberCourseExport memberCourseExport = courseExport.getMember(memberId);
+                MemberCourseExport memberCourseExport = courseExt.getMember(memberId);
                 if (memberCourseExport == null) continue;
 
                 member = new DataSummaryImpl.MemberImpl();

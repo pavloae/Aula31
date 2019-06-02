@@ -39,7 +39,7 @@ public class Membership {
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("user_id", user_id);
-        map.put("course_id", course_id);
+        map.put("courseId", course_id);
         map.put("course_name", course_name);
         map.put("institution_name", institution_name);
         map.put("role", role);

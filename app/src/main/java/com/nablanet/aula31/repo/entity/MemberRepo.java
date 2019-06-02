@@ -30,7 +30,7 @@ public class MemberRepo {
     Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("user_id", user_id);
-        map.put("course_id", course_id);
+        map.put("courseId", course_id);
         map.put("profile", profile.toMap());
         if (works != null) map.put("works", MemberWork.toMap(works));
         return map;

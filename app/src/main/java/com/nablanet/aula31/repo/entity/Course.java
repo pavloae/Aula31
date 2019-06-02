@@ -7,12 +7,28 @@ import java.util.Map;
 
 public class Course {
 
-    @Exclude public String course_id;
+    @Exclude public String courseId;
 
-    public CourseProfile profile;
-    public Map<String, Member> members;
+    private CourseProfile profile;
+    private Map<String, Member> members;
 
-    Map<String, Object> toMap() {
+    public CourseProfile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(CourseProfile profile) {
+        this.profile = profile;
+    }
+
+    public Map<String, Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Map<String, Member> members) {
+        this.members = members;
+    }
+
+    final Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("profile", profile.toMap());
         if (members != null) map.put("members", Member.toMap(members));

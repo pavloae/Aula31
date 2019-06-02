@@ -1,7 +1,6 @@
 package com.nablanet.aula31.export;
 
 import android.app.DatePickerDialog;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -25,7 +24,7 @@ import com.nablanet.aula31.R;
 import com.nablanet.aula31.classes.ClassActivity;
 import com.nablanet.aula31.export.data.DataParams;
 import com.nablanet.aula31.export.data.DataRepo;
-import com.nablanet.aula31.export.entity.CourseExport;
+import com.nablanet.aula31.export.entity.CourseExt;
 import com.nablanet.aula31.export.entity.MemberCourseExport;
 import com.nablanet.aula31.export.view.MemberAdapter;
 import com.nablanet.aula31.export.viewmodel.CourseViewModel;
@@ -90,15 +89,15 @@ public class ExportActivity extends AppCompatActivity {
 
         ViewModelProviders.of(this).get(CourseViewModel.class)
                 .getCourseExportLiveData(dataParams.getCourseId())
-                .observe(this, new Observer<CourseExport>() {
+                .observe(this, new Observer<CourseExt>() {
                     @Override
-                    public void onChanged(@Nullable CourseExport courseExport) {
+                    public void onChanged(@Nullable CourseExt courseExt) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        dataParams.setCourseExport(courseExport);
-                        if (courseExport != null) {
-                            institutionTV.setText(courseExport.institutionName);
-                            subjectTV.setText(courseExport.getSubjectFullName());
-                            adapter.updateMembers(courseExport.memberCourseExportList);
+                        dataParams.setCourseExt(courseExt);
+                        if (courseExt != null) {
+                            institutionTV.setText(courseExt.institutionName);
+                            subjectTV.setText(courseExt.getSubjectFullName());
+                            adapter.updateMembers(courseExt.memberCourseExportList);
                         } else {
                             institutionTV.setText("");
                             subjectTV.setText("");
@@ -126,7 +125,7 @@ public class ExportActivity extends AppCompatActivity {
 
     public void queryDataReport(View view) {
 
-        if (dataParams.getCourseExport() == null) {
+        if (dataParams.getCourseExt() == null) {
             Toast.makeText(
                     this, "No hay datos del curso...", Toast.LENGTH_SHORT
             ).show();
@@ -215,13 +214,13 @@ public class ExportActivity extends AppCompatActivity {
 
     @Nullable
     private String getFileName() {
-        if (dataParams.getCourseExport() == null) return null;
+        if (dataParams.getCourseExt() == null) return null;
         return String.format(
                 Locale.getDefault(),
                 "%s-%s%s.ods",
-                dataParams.getCourseExport().subjectName,
-                dataParams.getCourseExport().subjectGrade,
-                dataParams.getCourseExport().classroom
+                dataParams.getCourseExt().subjectName,
+                dataParams.getCourseExt().subjectGrade,
+                dataParams.getCourseExt().classroom
         );
     }
 

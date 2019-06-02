@@ -45,7 +45,7 @@ public class SummaryViewModel extends ViewModel {
         }
 
         final DataSummaryFactory dataSummaryFactory = new DataSummaryFactory();
-        dataSummaryFactory.setCourseExport(dataParams.getCourseExport());
+        dataSummaryFactory.setCourseExt(dataParams.getCourseExt());
 
         dataSummaryLive.addSource(dataTrackLive, new Observer<DataTrackImpl>() {
 

@@ -193,7 +193,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks,         // OnVerificationStateChangedCallbacks
-                token);             // ForceResendingToken from callbacks
+                token);             // ForceResendingToken toMap callbacks
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {

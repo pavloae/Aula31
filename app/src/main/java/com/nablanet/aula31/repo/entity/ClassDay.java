@@ -38,7 +38,7 @@ public class ClassDay {
     @Exclude
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("course_id", course_id);
+        map.put("courseId", course_id);
         map.put("date", date);
         map.put("comment", comment);
         if (members != null) map.put("members", Attendance.toMap(members));

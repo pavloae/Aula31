@@ -371,7 +371,7 @@ public class ClassViewModel extends ViewModel {
         Map<String, Object> childsUpdate = new HashMap<>();
         childsUpdate.put("/courses/" + courseId + "/members/" + memberKey, memberItem.getMember().toMap());
         childsUpdate.put("tracking/" + memberKey + "/user_id", memberItem.getUser_id());
-        childsUpdate.put("tracking/" + memberKey + "/course_id", courseId);
+        childsUpdate.put("tracking/" + memberKey + "/courseId", courseId);
         childsUpdate.put("tracking/" + memberKey + "/profile/url_image", memberItem.getMember().getUrl_image());
         childsUpdate.put("tracking/" + memberKey + "/profile/lastname", memberItem.getMember().getLastname());
         childsUpdate.put("tracking/" + memberKey + "/profile/names", memberItem.getMember().getNames());

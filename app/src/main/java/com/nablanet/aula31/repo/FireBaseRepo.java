@@ -50,7 +50,7 @@ public class FireBaseRepo {
 
     public Task<Void> saveNewCourse(CourseProfile courseProfile) {
         Course course = new Course();
-        course.profile = courseProfile;
+        course.setProfile(courseProfile);
         return FirebaseDatabase.getInstance().getReference("courses").push().setValue(course);
     }
 
@@ -100,14 +100,14 @@ public class FireBaseRepo {
     public LiveData<DataResult<ClassDay>> getCourseClasses(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance().getReference("classes")
-                        .orderByChild("course_id").equalTo(courseId).limitToFirst(190),
+                        .orderByChild("courseId").equalTo(courseId).limitToFirst(190),
                 ClassDay.class
         );
     }
 
     public DatabaseReference getClasses(String courseId) {
         return FirebaseDatabase.getInstance().getReference("classes")
-                .orderByChild("course_id").equalTo(courseId).limitToFirst(190).getRef();
+                .orderByChild("courseId").equalTo(courseId).limitToFirst(190).getRef();
     }
 
     public DatabaseReference getMemberTrack(String memberId) {
@@ -117,7 +117,7 @@ public class FireBaseRepo {
     public LiveData<DataResult<MemberTrack>> getTrackByCourse(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance().getReference("tracking")
-                        .orderByChild("course_id").equalTo(courseId).limitToFirst(30),
+                        .orderByChild("courseId").equalTo(courseId).limitToFirst(30),
                 MemberTrack.class
         );
     }
@@ -125,7 +125,7 @@ public class FireBaseRepo {
     public LiveData<DataResult<MemberRepo>> getMembersRepositories(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance()
-                        .getReference("works").orderByChild("course_id")
+                        .getReference("works").orderByChild("courseId")
                         .equalTo(courseId).limitToFirst(30),
                 MemberRepo.class
         );
@@ -134,7 +134,7 @@ public class FireBaseRepo {
     public LiveData<DataResult<CourseWork>> getCourseWorks(String courseId) {
         return new FirebaseQueryLiveData<>(
                 FirebaseDatabase.getInstance()
-                        .getReference("repository").orderByChild("course_id")
+                        .getReference("repository").orderByChild("courseId")
                         .equalTo(courseId).limitToFirst(30),
                 CourseWork.class
         );

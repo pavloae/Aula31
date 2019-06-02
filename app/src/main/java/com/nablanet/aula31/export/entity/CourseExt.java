@@ -1,11 +1,8 @@
 package com.nablanet.aula31.export.entity;
 
-import com.nablanet.aula31.repo.entity.ClassDay;
+import com.nablanet.aula31.repo.entity.Course;
 import com.nablanet.aula31.repo.entity.CourseProfile;
-import com.nablanet.aula31.repo.entity.Institution;
 import com.nablanet.aula31.repo.entity.Member;
-import com.nablanet.aula31.repo.entity.Profile;
-import com.nablanet.aula31.repo.entity.Subject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CourseExport {
-
-    public String courseId;
+public class CourseExt extends Course {
 
     public String institutionName;
     public String subjectName;
@@ -26,7 +21,11 @@ public class CourseExport {
 
     public List<MemberCourseExport> memberCourseExportList;
 
-    public CourseExport(String courseId, CourseProfile profile, Map<String, Member> memberMap) {
+    public CourseExt() {
+        super();
+    }
+
+    public CourseExt(String courseId, CourseProfile profile, Map<String, Member> memberMap) {
         this.courseId = courseId;
         setProfile(profile);
         setMemberList(memberMap);
