@@ -14,6 +14,7 @@ import com.nablanet.aula31.repo.entity.ClassDay;
 import com.nablanet.aula31.repo.entity.Course;
 import com.nablanet.aula31.repo.entity.CourseProfile;
 import com.nablanet.aula31.repo.entity.CourseWork;
+import com.nablanet.aula31.repo.entity.KeyImpl;
 import com.nablanet.aula31.repo.entity.Member;
 import com.nablanet.aula31.repo.entity.MemberRepo;
 import com.nablanet.aula31.repo.entity.MemberTrack;
@@ -62,9 +63,9 @@ public class FireBaseRepo {
         return Transformations.map(
                 new FirebaseQueryLiveData<>(
                         FirebaseDatabase.getInstance().getReference("courses").child(courseId),
-                        Object.class
+                        KeyImpl.class
                 ),
-                new Function<DataResult<Object>, Course>() {
+                new Function<DataResult<KeyImpl>, Course>() {
                     @Override
                     public Course apply(DataResult dataResult) {
                         if (dataResult == null) return null;
@@ -79,9 +80,9 @@ public class FireBaseRepo {
                 new FirebaseQueryLiveData<>(
                         FirebaseDatabase.getInstance()
                                 .getReference("courses").child(courseId).child("members"),
-                        Object.class
+                        KeyImpl.class
                 ),
-                new Function<DataResult<Object>, Map<String, Member>>() {
+                new Function<DataResult<KeyImpl>, Map<String, Member>>() {
                     @Override
                     public Map<String, Member> apply(DataResult dataResult) {
                         Map<String, Member> memberMap = new HashMap<>();

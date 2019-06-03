@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class MemberRepo {
-
-    @Exclude String member_id;
+public class MemberRepo extends KeyImpl {
 
     public String user_id;
     public String course_id;
@@ -21,8 +19,8 @@ public class MemberRepo {
         return String.format(
                 Locale.getDefault(),
                 "%s, %s",
-                (profile.lastname == null) ? "" : profile.lastname,
-                (profile.names == null) ? "" : profile.names
+                (profile.getLastname() == null) ? "" : profile.getLastname(),
+                (profile.getNames() == null) ? "" : profile.getNames()
         );
     }
 

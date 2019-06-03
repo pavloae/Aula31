@@ -95,7 +95,7 @@ public class ExportActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.INVISIBLE);
                         dataParams.setCourseExt(courseExt);
                         if (courseExt != null) {
-                            institutionTV.setText(courseExt.institutionName);
+                            institutionTV.setText(courseExt.getInstitutionName());
                             subjectTV.setText(courseExt.getSubjectFullName());
                             adapter.updateMembers(courseExt.memberCourseExportList);
                         } else {
@@ -218,9 +218,9 @@ public class ExportActivity extends AppCompatActivity {
         return String.format(
                 Locale.getDefault(),
                 "%s-%s%s.ods",
-                dataParams.getCourseExt().subjectName,
-                dataParams.getCourseExt().subjectGrade,
-                dataParams.getCourseExt().classroom
+                dataParams.getCourseExt().getSubjectName(),
+                dataParams.getCourseExt().getSubjectGrade(),
+                dataParams.getCourseExt().getClassroom()
         );
     }
 

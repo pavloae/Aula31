@@ -59,9 +59,9 @@ public class DataSummaryFactory {
 
         if (courseExt != null) {
             dataSummary.period = courseExt.period;
-            dataSummary.subject = courseExt.subjectName;
-            dataSummary.year = courseExt.subjectGrade;
-            dataSummary.classroom = courseExt.classroom;
+            dataSummary.subject = courseExt.getSubjectName();
+            dataSummary.year = courseExt.getSubjectGrade();
+            dataSummary.classroom = courseExt.getClassroom();
             dataSummary.teacher = dataParams.getTeacher();
         }
 

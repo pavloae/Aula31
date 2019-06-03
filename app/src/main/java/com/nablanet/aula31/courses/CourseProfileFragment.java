@@ -102,7 +102,7 @@ public class CourseProfileFragment extends Fragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if (TextUtils.isEmpty(courseProfileExt.course_id))
+        if (TextUtils.isEmpty(courseProfileExt.getKey()))
             menu.findItem(R.id.btn_save).setIcon(android.R.drawable.ic_menu_save);
         else
             menu.findItem(R.id.btn_save).setIcon(android.R.drawable.stat_notify_sync_noanim);
@@ -114,10 +114,10 @@ public class CourseProfileFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.btn_save:
                 updateValues();
-                if (TextUtils.isEmpty(courseProfileExt.course_id))
+                if (TextUtils.isEmpty(courseProfileExt.getKey()))
                     viewModel.saveCourse(courseProfileExt);
                 else
-                    viewModel.updateCourseProfile(courseProfileExt.course_id, courseProfileExt);
+                    viewModel.updateCourseProfile(courseProfileExt.getKey(), courseProfileExt);
                 break;
                 // TODO: futere options
         }
@@ -138,8 +138,8 @@ public class CourseProfileFragment extends Fragment {
         institutionSP.setText(courseProfileExt.getInstitutionName());
         subjectSP.setText(courseProfileExt.getSubjectName());
         gradeNP.setValue(courseProfileExt.getSubjectGrade());
-        classroomSP.setText(courseProfileExt.classroom);
-        shiftSP.setText(courseProfileExt.shift);
+        classroomSP.setText(courseProfileExt.getClassroom());
+        shiftSP.setText(courseProfileExt.getShift());
     }
 
     public void updateValues() {
@@ -147,10 +147,10 @@ public class CourseProfileFragment extends Fragment {
         courseProfileExt.setInstitutionName(getText(institutionSP.getText()));
         courseProfileExt.setSubjectName(getText(subjectSP.getText()));
         courseProfileExt.setSubjectGrade(gradeNP.getValue());
-        courseProfileExt.classroom = getText(classroomSP.getText());
-        courseProfileExt.year = Calendar.getInstance().get(Calendar.YEAR);
-        courseProfileExt.owner = FirebaseAuth.getInstance().getUid();
-        courseProfileExt.shift = getText(shiftSP.getText());
+        courseProfileExt.setClassroom(getText(classroomSP.getText()));
+        courseProfileExt.setYear(Calendar.getInstance().get(Calendar.YEAR));
+        courseProfileExt.setOwner(FirebaseAuth.getInstance().getUid());
+        courseProfileExt.setShift(getText(shiftSP.getText()));
     }
 
     private String getText(Editable editable) {

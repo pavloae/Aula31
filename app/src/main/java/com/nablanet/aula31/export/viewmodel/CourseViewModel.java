@@ -30,7 +30,7 @@ public class CourseViewModel extends ViewModel {
                         public CourseExt apply(Course course) {
                             if (course == null) return null;
                             return new CourseExt(
-                                    course.courseId, course.getProfile(), course.getMembers()
+                                    course.getKey(), course.getProfile(), course.getMembers()
                             );
                         }
                     }

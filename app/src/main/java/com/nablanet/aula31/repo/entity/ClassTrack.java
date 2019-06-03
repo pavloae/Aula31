@@ -8,9 +8,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClassTrack {
-
-    @Exclude public String class_id;
+public class ClassTrack extends KeyImpl {
 
     public Long date;
     public Map<String, Observation> observations;

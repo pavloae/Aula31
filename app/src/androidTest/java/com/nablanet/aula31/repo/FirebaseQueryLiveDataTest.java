@@ -58,6 +58,7 @@ public class FirebaseQueryLiveDataTest {
                 new Observer<DataResult<Course>>() {
                     @Override
                     public void onChanged(@Nullable DataResult<Course> courseDataResult) {
+                        System.out.println("Observer.Course");
                         Assert.assertNotNull(courseDataResult);
                         Course course = courseDataResult.getValue();
                         Assert.assertNotNull(course);
@@ -83,6 +84,7 @@ public class FirebaseQueryLiveDataTest {
                 new Observer<DataResult<CourseExt>>() {
                     @Override
                     public void onChanged(@Nullable DataResult<CourseExt> courseDataResult) {
+                        System.out.println("Observer.CourseExt");
                         Assert.assertNotNull(courseDataResult);
                         CourseExt courseExt = courseDataResult.getValue();
                         Assert.assertNotNull(courseExt);

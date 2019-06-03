@@ -122,7 +122,7 @@ public class ClassViewModel extends ViewModel {
             if ((member = memberMap.get(key)) != null &&
                     (member.getState() == Member.ACTIVE ||
                             attendanceMap.containsKey(key))) {
-                member.member_id = key;
+                member.setKey(key);
                 MemberItem memberItem = new MemberItem();
                 memberItem.setMember(member);
                 memberItem.setAttendance(attendanceMap.get(key));
@@ -341,14 +341,14 @@ public class ClassViewModel extends ViewModel {
     void updateAttendance(MemberItem memberItem) {
 
         ClassDay classDay = getClassDay().getValue();
-        if (classDay == null || TextUtils.isEmpty(classDay.class_id)){
+        if (classDay == null || TextUtils.isEmpty(classDay.getKey())){
             responseMutableLiveData.setValue(
                     new Response(false, "Clase es null")
             );
             return;
         }
 
-        FirebaseDatabase.getInstance().getReference("classes").child(classDay.class_id)
+        FirebaseDatabase.getInstance().getReference("classes").child(classDay.getKey())
                 .child("members").child(memberItem.memberId)
                 .setValue(memberItem.getAttendance());
 

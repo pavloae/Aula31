@@ -5,9 +5,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Course {
-
-    @Exclude public String courseId;
+public class Course extends KeyImpl {
 
     private CourseProfile profile;
     private Map<String, Member> members;
@@ -28,9 +26,10 @@ public class Course {
         this.members = members;
     }
 
+    @Exclude
     final Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("profile", profile.toMap());
+        if (profile != null) map.put("profile", profile.toMap());
         if (members != null) map.put("members", Member.toMap(members));
         return map;
     }

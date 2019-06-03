@@ -13,10 +13,6 @@ import java.util.Map;
 
 public class CourseExt extends Course {
 
-    public String institutionName;
-    public String subjectName;
-    public Integer subjectGrade;
-    public String classroom;
     public Integer period;
 
     public List<MemberCourseExport> memberCourseExportList;
@@ -25,35 +21,10 @@ public class CourseExt extends Course {
         super();
     }
 
-    public CourseExt(String courseId, CourseProfile profile, Map<String, Member> memberMap) {
-        this.courseId = courseId;
+    public CourseExt(String key, CourseProfile profile, Map<String, Member> memberMap) {
+        setKey(key);
         setProfile(profile);
         setMemberList(memberMap);
-    }
-
-    public void setProfile(CourseProfile profile) {
-
-        if (profile == null) {
-
-            institutionName = null;
-            subjectName = null;
-            subjectGrade = null;
-            classroom = null;
-
-        } else  {
-
-            if (profile.institution != null)
-                institutionName = profile.institution.name;
-
-            if (profile.subject != null) {
-                subjectName = profile.subject.name;
-                subjectGrade = profile.subject.grade;
-            }
-
-            classroom = profile.classroom;
-
-        }
-
     }
 
     public void setMemberList(Map<String, Member> memberMap) {
@@ -86,10 +57,35 @@ public class CourseExt extends Course {
         }
     }
 
+    public String getInstitutionName() {
+        if (getProfile() == null || getProfile().getInstitution() == null)
+            return null;
+        return getProfile().getInstitution().getName();
+    }
+
     public String getSubjectFullName() {
         return String.format(
-                Locale.getDefault(), "%s %s%s", subjectName, subjectGrade, classroom
+                Locale.getDefault(), "%s %s%s",
+                getSubjectName(), getSubjectGrade(), getClassroom()
         );
+    }
+
+    public String getSubjectName() {
+        if (getProfile() == null || getProfile().getSubject() == null)
+            return null;
+        return getProfile().getSubject().getName();
+    }
+
+    public Integer getSubjectGrade() {
+        if (getProfile() == null || getProfile().getSubject() == null)
+            return null;
+        return getProfile().getSubject().getGrade();
+    }
+
+    public String getClassroom() {
+        if (getProfile() == null)
+            return null;
+        return getProfile().getClassroom();
     }
 
     public MemberCourseExport getMember(String memberId) {

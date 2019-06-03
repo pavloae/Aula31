@@ -6,10 +6,11 @@ import android.support.annotation.WorkerThread;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.nablanet.aula31.repo.entity.Key;
 
 import java.util.Map;
 
-public class DataResult<T> {
+public class DataResult<T extends Key> {
 
     private DataSnapshot dataSnapshot;
     private DatabaseError databaseError;

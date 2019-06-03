@@ -53,10 +53,10 @@ public class EditMemberDialog extends DialogFragment {
         );
 
         lastnameET = view.findViewById(R.id.lastname_et);
-        lastnameET.setText(profile.lastname);
+        lastnameET.setText(profile.getLastname());
 
         namesET = view.findViewById(R.id.names_et);
-        namesET.setText(profile.names);
+        namesET.setText(profile.getNames());
 
         return builder.setView(view)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -112,8 +112,8 @@ public class EditMemberDialog extends DialogFragment {
         MemberTracks memberTracks = new MemberTracks();
         memberTracks.course_id = courseId;
         memberTracks.id = memberId;
-        profile.lastname = lastnameET.getText().toString();
-        profile.names = namesET.getText().toString();
+        profile.setLastname(lastnameET.getText().toString());
+        profile.setNames(namesET.getText().toString());
         memberTracks.profile = profile;
         return memberTracks;
     }

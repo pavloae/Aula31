@@ -25,7 +25,7 @@ public class DataParams {
             @Nullable Long from, @Nullable Long to
     ) {
         this.courseExt = courseExt;
-        this.courseId = courseExt.courseId;
+        this.courseId = courseExt.getKey();
         this.memberIdList = memberIdList;
         this.from = from;
         this.to = to;

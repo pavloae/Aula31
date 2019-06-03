@@ -24,7 +24,7 @@ public class MemberTracks {
         ClassTrack classTrack;
         for (String classKey : classes.keySet()) {
             classTrack = classes.get(classKey);
-            classTrack.class_id = classKey;
+            classTrack.setKey(classKey);
             classTrackList.add(classTrack);
         }
         return classTrackList;

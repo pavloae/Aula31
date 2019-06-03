@@ -13,14 +13,16 @@ public class CourseProfileExt extends CourseProfile {
 
     @Exclude
     public String getInstitutionName() {
-        if (institution == null) return "";
-        return institution.name;
+        if (getInstitution() == null)
+            return null;
+        return getInstitution().getName();
     }
 
     @Exclude
     public String getSubjectName() {
-        if (subject == null || subject.name == null) return "";
-        return subject.name;
+        if (getSubject() == null)
+            return null;
+        return getSubject().getName();
     }
 
     @Exclude
@@ -29,34 +31,37 @@ public class CourseProfileExt extends CourseProfile {
                 Locale.getDefault(),
                 "%s - %s %s %s",
                 (TextUtils.isEmpty(getSubjectName())) ? "[Materia]" : getSubjectName(),
-                (subject.grade == 0) ? "[año]" : String.valueOf(subject.grade) + "º",
-                (classroom == null) ? "[aula]" : '"' + classroom + '"',
-                (shift == null) ? "[turno]" : "[" + shift + "]"
+                (getSubject().getGrade() == 0) ? "[año]" : getSubject().getGrade() + "º",
+                (getClassroom() == null) ? "[aula]" : '"' + getClassroom() + '"',
+                (getShift() == null) ? "[turno]" : "[" + getShift() + "]"
         );
     }
 
     @Exclude
     public int getSubjectGrade(){
-        if (subject == null || subject.grade < 1 || subject.grade > 9) return 0;
-        return subject.grade;
+        if (getSubject() == null || getSubject().getGrade() < 1 || getSubject().getGrade() > 9) return 0;
+        return getSubject().getGrade();
     }
 
     @Exclude
     public void setInstitutionName(String institutionName) {
-        if (institution == null) institution = new Institution();
-        institution.name = institutionName;
+        if (getInstitution() == null)
+            setInstitution(new Institution());
+        getInstitution().setName(institutionName);
     }
 
     @Exclude
     public void setSubjectGrade(int subjectGrade) {
-        if (subject == null) subject = new Subject();
-        subject.grade = subjectGrade;
+        if (getSubject() == null)
+            setSubject(new Subject());
+        getSubject().setGrade(subjectGrade);
     }
 
     @Exclude
     public void setSubjectName(String subjectName) {
-        if (subject == null) subject = new Subject();
-        subject.name = subjectName;
+        if (getSubject() == null)
+            setSubject(new Subject());
+        getSubject().setName(subjectName);
     }
 
 }

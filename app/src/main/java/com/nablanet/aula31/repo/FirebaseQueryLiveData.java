@@ -10,8 +10,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.nablanet.aula31.repo.entity.Key;
 
-public class FirebaseQueryLiveData<T> extends MutableLiveData<DataResult<T>> {
+public class FirebaseQueryLiveData<T extends Key> extends MutableLiveData<DataResult<T>> {
 
     private static final String LOG_TAG = "FirebaseQueryLiveData";
 

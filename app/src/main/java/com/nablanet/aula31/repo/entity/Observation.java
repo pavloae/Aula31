@@ -7,10 +7,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Observation {
-
-    @Exclude
-    String observer_uid;
+public class Observation extends KeyImpl {
 
     public Integer rate;
     public String comment;

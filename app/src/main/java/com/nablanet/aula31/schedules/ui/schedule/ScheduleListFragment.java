@@ -74,9 +74,9 @@ public class ScheduleListFragment extends Fragment {
                 this, new Observer<List<Schedule>>() {
                     @Override
                     public void onChanged(@Nullable List<Schedule> schedules) {
-                        if (schedules == null || courseProfileExt == null || TextUtils.isEmpty(courseProfileExt.course_id)) return;
+                        if (schedules == null || courseProfileExt == null || TextUtils.isEmpty(courseProfileExt.getKey())) return;
                         for ( Schedule schedule : schedules)
-                            if (schedule.course_id.equals(courseProfileExt.course_id)) {
+                            if (schedule.course_id.equals(courseProfileExt.getKey())) {
                                 ScheduleListFragment.this.schedule = schedule;
                                 ((ScheduleListAdapter) recyclerView.getAdapter())
                                         .updateList(new ArrayList<>(schedule.weekdays.values()));

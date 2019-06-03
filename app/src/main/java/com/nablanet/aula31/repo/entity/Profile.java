@@ -5,11 +5,11 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Profile {
+public class Profile extends KeyImpl {
 
-    public String url_image;
-    public String lastname;
-    public String names;
+    private String url_image;
+    private String lastname;
+    private String names;
 
     public Profile() {
     }
@@ -20,8 +20,32 @@ public class Profile {
         this.names = names;
     }
 
+    public String getUrl_image() {
+        return url_image;
+    }
+
+    public void setUrl_image(String url_image) {
+        this.url_image = url_image;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getNames() {
+        return names;
+    }
+
+    public void setNames(String names) {
+        this.names = names;
+    }
+
     @Exclude
-    Map<String, Object> toMap() {
+    final Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("url_image", url_image);
         map.put("lastname", lastname);

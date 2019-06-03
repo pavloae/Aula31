@@ -83,7 +83,7 @@ public class ScheduleCalendarActivity extends AppCompatActivity implements View.
                 CourseExt course;
                 for (DataSnapshot child : dataSnapshot.getChildren()){
                     course = child.getValue(CourseExt.class);
-                    if (course != null && course.profile.year == Calendar.getInstance().get(Calendar.YEAR)) {
+                    if (course != null && course.profile.getYear() == Calendar.getInstance().get(Calendar.YEAR)) {
                         courses.add(course);
                     }
                 }

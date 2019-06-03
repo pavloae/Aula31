@@ -79,17 +79,17 @@ public class TrackingViewModel extends ViewModel {
 
         childsUpdate.put(
                 "courses/" + memberTracks.course_id + "/members/" + memberTracks.id + "/lastname",
-                memberTracks.profile.lastname
+                memberTracks.profile.getLastname()
         );
         childsUpdate.put(
                 "courses/" + memberTracks.course_id + "/members/" + memberTracks.id + "/names",
-                memberTracks.profile.names
+                memberTracks.profile.getNames()
         );
         childsUpdate.put(
-                "tracking/" + memberTracks.id + "/profile/lastname", memberTracks.profile.lastname
+                "tracking/" + memberTracks.id + "/profile/lastname", memberTracks.profile.getLastname()
         );
         childsUpdate.put(
-                "tracking/" + memberTracks.id + "/profile/names", memberTracks.profile.names
+                "tracking/" + memberTracks.id + "/profile/names", memberTracks.profile.getNames()
         );
 
 

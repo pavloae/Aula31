@@ -90,7 +90,7 @@ public class ScheduleViewModel extends ViewModel {
             Schedule schedule = new Schedule();
             scheduleRef = scheduleRef.push();
             schedule.id = scheduleRef.push().getKey();
-            schedule.course_id = currentCourseMutableLiveData.getValue().course_id;
+            schedule.course_id = currentCourseMutableLiveData.getValue().getKey();
             schedule.user_id = FirebaseAuth.getInstance().getUid();
             schedule.weekdays = new HashMap<>();
             schedule.weekdays.put(

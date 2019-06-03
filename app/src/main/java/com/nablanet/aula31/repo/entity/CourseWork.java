@@ -5,12 +5,10 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CourseWork {
+public class CourseWork extends KeyImpl {
 
     @Exclude public static final int HOMEWORK = 0;
     @Exclude public static final int CLASSWORK = 1;
-
-    @Exclude public String work_id;
 
     public String course_id;
     public Integer type;

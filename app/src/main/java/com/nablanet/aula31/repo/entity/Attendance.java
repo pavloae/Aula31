@@ -7,10 +7,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Attendance {
-
-    @Exclude
-    public String member_id;
+public class Attendance extends KeyImpl {
 
     private Boolean present;
     private Integer position;

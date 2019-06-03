@@ -79,8 +79,8 @@ public class MemberTrackActivity extends AppCompatActivity {
                     public void onChanged(@Nullable Profile profile) {
                         if (profile == null) return;
                         MemberTrackActivity.this.profile = profile;
-                        lastname.setText(profile.lastname);
-                        names.setText(profile.names);
+                        lastname.setText(profile.getLastname());
+                        names.setText(profile.getNames());
                     }
                 });
         trackingViewModel.getCurrentObservationLiveData(memberId, classId)

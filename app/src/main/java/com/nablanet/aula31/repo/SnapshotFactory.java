@@ -4,11 +4,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
+import com.nablanet.aula31.repo.entity.Key;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SnapshotFactory<T> {
+public class SnapshotFactory<T extends Key> {
 
     Class<T> clazz;
 
@@ -21,10 +22,13 @@ public class SnapshotFactory<T> {
         if (dataSnapshot == null) return null;
         Map<String, T> map = new HashMap<>();
         for (DataSnapshot data : dataSnapshot.getChildren()) {
-            if (data == null || data.getKey() == null) continue;
+            if (data == null || data.getKey() == null)
+                continue;
             T value = toValue(dataSnapshot);
-            if (value != null)
-                map.put(data.getKey(), value);
+            if (value == null)
+                continue;
+            value.setKey(data.getKey());
+            map.put(data.getKey(), value);
         }
         return map;
     }
@@ -33,7 +37,10 @@ public class SnapshotFactory<T> {
     public T toValue(@Nullable DataSnapshot dataSnapshot) {
         if (dataSnapshot == null)
             return null;
-        return dataSnapshot.getValue(clazz);
+        T value = dataSnapshot.getValue(clazz);
+        if (value != null)
+            value.setKey(dataSnapshot.getKey());
+        return value;
     }
 
 }

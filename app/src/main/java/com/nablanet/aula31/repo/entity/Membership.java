@@ -5,7 +5,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Membership {
+public class Membership extends KeyImpl {
 
     /**
      * State of user request to join course {@link #course_id}

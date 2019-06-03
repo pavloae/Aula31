@@ -88,7 +88,7 @@ public class CourseViewModel extends ViewModel {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     CourseProfileExt courseProfile = dataSnapshot.getValue(CourseProfileExt.class);
-                                    if (courseProfile != null) courseProfile.course_id = courseId;
+                                    if (courseProfile != null) courseProfile.setKey(courseId);
                                         selectedCourseProfileMutableLiveData.setValue(courseProfile);
                                 }
 
@@ -143,7 +143,7 @@ public class CourseViewModel extends ViewModel {
     private void createOwnerMembership(CourseProfileExt courseProfile) {
         Membership membership = new Membership();
         membership.user_id = FirebaseAuth.getInstance().getUid();
-        membership.course_id = courseProfile.course_id;
+        membership.course_id = courseProfile.getKey();
         membership.course_name = courseProfile.getCourseName();
         membership.institution_name = courseProfile.getInstitutionName();
         membership.role = Membership.TEACHER;
@@ -179,7 +179,7 @@ public class CourseViewModel extends ViewModel {
                         for (DataSnapshot data : dataSnapshot.getChildren())
                             membershipMap.put(data.getKey(), data.getValue(Membership.class));
 
-                        courseProfileExt.course_id = courseKey;
+                        courseProfileExt.setKey(courseKey);
                         updateChilds(courseProfileExt, membershipMap);
                     }
 
@@ -195,7 +195,7 @@ public class CourseViewModel extends ViewModel {
     private void updateChilds(CourseProfileExt courseProfileExt, Map<String, Membership> membershipMap) {
 
         Map<String, Object> childsUpdate = new HashMap<>();
-        childsUpdate.put("/courses/" + courseProfileExt.course_id + "/profile", courseProfileExt.toMap());
+        childsUpdate.put("/courses/" + courseProfileExt.getKey() + "/profile", courseProfileExt.toMap());
 
         for (String key : membershipMap.keySet()){
             membershipMap.get(key).institution_name = courseProfileExt.getInstitutionName();

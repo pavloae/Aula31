@@ -258,7 +258,7 @@ public class ClassActivity extends AppCompatActivity implements View.OnClickList
         bundle.putString(MemberTrackActivity.NAMES_KEY, memberItem.names);
         ClassDay classDay = classViewModel.getClassDay().getValue();
         if (classDay != null)
-            bundle.putString(MemberTrackActivity.CLASS_ID_KEY, classDay.class_id);
+            bundle.putString(MemberTrackActivity.CLASS_ID_KEY, classDay.getKey());
 
         startActivity(new Intent(this, MemberTrackActivity.class).putExtras(bundle));
 

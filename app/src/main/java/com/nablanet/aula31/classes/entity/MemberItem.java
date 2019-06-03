@@ -43,7 +43,7 @@ public class MemberItem extends Member {
     }
 
     public void setMember(Member member) {
-        this.memberId = member.member_id;
+        this.memberId = member.getKey();
         setUser_id(member.getUser_id());
         setProfile(member.getProfile());
         setRole(member.getRole());
@@ -52,7 +52,7 @@ public class MemberItem extends Member {
 
     public Member getMember() {
         Member member = new Member();
-        member.member_id = memberId;
+        member.setKey(memberId);
         member.setUser_id(getUser_id());
         member.setProfile(getProfile());
         member.setRole(getRole());
