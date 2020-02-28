@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".classes.ClassActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_class"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="@string/institution_activity_title"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <RelativeLayout
+        android:id="@+id/teacher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
+        style="@style/AppBaseTheme">
+
+        <RelativeLayout
+            android:id="@+id/dinamic_member_bar"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/back_student_button"
+                android:layout_width="@dimen/member_selector_height"
+                android:layout_height="@dimen/member_selector_height"
+                android:contentDescription="@string/back_button"
+                android:layout_gravity="center_vertical"
+                android:src="@android:drawable/ic_media_previous"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:onClick="onPreviousMember"
+                android:background="@color/colorPrimaryDark"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/member_selector_height"
+                android:orientation="horizontal"
+                android:layout_toRightOf="@+id/back_student_button"
+                android:layout_toEndOf="@+id/back_student_button"
+                android:layout_toLeftOf="@+id/forward_student_button"
+                android:layout_toStartOf="@+id/forward_student_button">
+
+                <RelativeLayout
+                    android:id="@+id/member_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_toLeftOf="@+id/absent_member_bar_ib"
+                    android:layout_toStartOf="@+id/absent_member_bar_ib">
+
+                    <ImageView
+                        android:id="@+id/picture_iv"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="8dp"
+                        app:srcCompat="@drawable/ic_subject_color"
+                        android:contentDescription="@string/user_image" />
+
+                    <TextView
+                        android:id="@+id/lastname_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:hint="@string/lastname"
+                        tools:ignore="UnknownIdInLayout"
+                        android:layout_toRightOf="@+id/picture_iv"
+                        android:layout_toEndOf="@+id/picture_iv"/>
+
+                    <TextView
+                        android:id="@+id/names_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:ellipsize="end"
+                        android:hint="@string/names"
+                        android:lines="2"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        tools:ignore="UnknownIdInLayout"
+                        android:layout_toRightOf="@+id/picture_iv"
+                        android:layout_toEndOf="@+id/picture_iv"
+                        android:layout_below="@+id/lastname_tv"/>
+
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/absent_member_bar_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_absent_gray"
+                    tools:ignore="ContentDescription"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:onClick="onClick"/>
+
+            </RelativeLayout>
+
+            <ImageButton
+                android:id="@+id/forward_student_button"
+                android:layout_width="@dimen/member_selector_height"
+                android:layout_height="@dimen/member_selector_height"
+                android:contentDescription="@string/foward_button"
+                android:src="@android:drawable/ic_media_next"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:onClick="onNextMember"
+                android:background="@color/colorPrimaryDark"/>
+
+        </RelativeLayout>
+
+        <com.nablanet.aula31.classes.view.ClassRecyclerView
+            android:id="@+id/members_class_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/dinamic_member_bar"
+            android:layout_above="@id/date_tv" >
+        </com.nablanet.aula31.classes.view.ClassRecyclerView>
+
+        <ImageButton
+            android:id="@+id/back_day_button"
+            android:layout_width="@dimen/date_selector_height"
+            android:layout_height="@dimen/date_selector_height"
+            android:contentDescription="@string/back_button"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@color/colorPrimaryDark"
+            android:layout_alignParentBottom="true"
+            android:onClick="onPreviousClass"/>
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/date_selector_height"
+            android:layout_toRightOf="@id/back_day_button"
+            android:layout_toLeftOf="@id/forward_day_button"
+            android:layout_alignParentBottom="true"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="24sp"
+            android:hint="@string/add_class"
+            android:layout_toEndOf="@id/back_day_button"
+            android:layout_toStartOf="@id/forward_day_button"
+            android:onClick="onCalendar"/>
+
+        <ImageButton
+            android:id="@+id/forward_day_button"
+            android:layout_width="@dimen/date_selector_height"
+            android:layout_height="@dimen/date_selector_height"
+            android:contentDescription="@string/foward_button"
+            android:src="@android:drawable/ic_media_next"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:background="@color/colorPrimaryDark"
+            android:layout_alignParentBottom="true"
+            android:onClick="onNextClass"/>
+
+
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

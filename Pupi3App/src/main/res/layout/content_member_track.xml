@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".tracking.MemberTrackActivity"
+    tools:showIn="@layout/activity_member_track">
+
+    <ImageButton
+        android:id="@+id/edit_profile_ib"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_menu_edit"
+        android:onClick="editProfile"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/image_user"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        app:srcCompat="@drawable/ic_subject_color"
+        android:layout_margin="18dp"
+        android:contentDescription="@string/urlImage" />
+
+    <TextView
+        android:id="@+id/lastname"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_toRightOf="@id/image_user"
+        android:layout_toEndOf="@id/image_user"
+        android:layout_toLeftOf="@+id/edit_profile_ib"
+        android:layout_marginTop="18dp"
+        android:textSize="24sp"
+        android:hint="@string/lastname"
+        android:layout_toStartOf="@+id/edit_profile_ib" />
+
+    <TextView
+        android:id="@+id/names"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_toRightOf="@id/image_user"
+        android:layout_toEndOf="@id/image_user"
+        android:layout_below="@+id/lastname"
+        android:textSize="18sp"
+        android:hint="@string/names"/>
+
+    <com.nablanet.aula31.views.RatingPersonView
+        android:id="@+id/average_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/image_user"
+        android:layout_alignBottom="@+id/image_user"
+        android:numStars="5"
+        android:layout_margin="8dp"
+        android:layout_toEndOf="@id/image_user"
+        style = "?android:attr/ratingBarStyleSmall"/>
+
+    <EditText
+        android:id="@+id/comment_et"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/image_user"
+        android:layout_above="@+id/person_rb"
+        android:gravity="top"
+        android:textSize="18sp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
+        android:hint="@string/comments"
+        android:inputType="textMultiLine|textCapSentences"
+        tools:ignore="Autofill" />
+
+    <com.nablanet.aula31.views.RatingPersonView
+        android:id="@+id/person_rb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="64dp"/>
+
+    <include layout="@layout/date_selector"/>
+
+</RelativeLayout>

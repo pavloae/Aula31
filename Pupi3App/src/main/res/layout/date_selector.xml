@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageButton
+        android:id="@+id/back_day_button"
+        android:layout_width="@dimen/date_selector_height"
+        android:layout_height="@dimen/date_selector_height"
+        android:contentDescription="@string/back_button"
+        android:layout_gravity="center_vertical"
+        android:src="@android:drawable/ic_media_previous"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/colorPrimaryDark"
+        android:layout_alignParentBottom="true"
+        android:onClick="onPreviousClass"/>
+
+    <TextView
+        android:id="@+id/date_tv"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/date_selector_height"
+        android:layout_toRightOf="@id/back_day_button"
+        android:layout_toLeftOf="@id/forward_day_button"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal|center_vertical"
+        android:textSize="24sp"
+        android:hint="@string/add_class"
+        android:layout_toEndOf="@id/back_day_button"
+        android:layout_toStartOf="@id/forward_day_button"
+        android:onClick="onCalendar"/>
+
+    <ImageButton
+        android:id="@+id/forward_day_button"
+        android:layout_width="@dimen/date_selector_height"
+        android:layout_height="@dimen/date_selector_height"
+        android:contentDescription="@string/foward_button"
+        android:src="@android:drawable/ic_media_next"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:background="@color/colorPrimaryDark"
+        android:layout_alignParentBottom="true"
+        android:onClick="onNextClass"/>
+
+</RelativeLayout>

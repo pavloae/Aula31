@@ -1,1 +1,3 @@
-include ':app', ':documents'
+include ':Pupi3App', ':documents', ':core', ':login'
+include ':domain'
+include ':data'
