@@ -1,4 +1,4 @@
-package com.nablanet.aula31.core.data.entity;
+package com.nablanet.aula31.core.repository.entity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

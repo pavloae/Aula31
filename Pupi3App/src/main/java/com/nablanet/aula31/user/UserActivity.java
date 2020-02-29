@@ -1,10 +1,8 @@
 package com.nablanet.aula31.user;
 
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.CheckBox;
@@ -14,12 +12,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nablanet.aula31.R;
-import com.nablanet.aula31.repo.DataResult;
-import com.nablanet.aula31.repo.entity.Phone;
-import com.nablanet.aula31.repo.entity.User;
-import com.nablanet.aula31.user.viewmodel.UserViewModel;
+import com.nablanet.aula31.core.viewmodel.Response;
+import com.nablanet.aula31.core.viewmodel.UserViewModel;
+import com.nablanet.aula31.domain.model.Phone;
+import com.nablanet.aula31.domain.model.User;
 
-public class UserActivity extends AppCompatActivity {
+import javax.inject.Inject;
+
+import dagger.android.support.DaggerAppCompatActivity;
+
+public class UserActivity extends DaggerAppCompatActivity {
 
     ImageView userImage;
     EditText fieldLastname, fieldName, fieldComment;
@@ -29,6 +31,7 @@ public class UserActivity extends AppCompatActivity {
     User user;
     Phone phone;
 
+    @Inject
     UserViewModel userViewModel;
 
     @Override
@@ -55,52 +58,45 @@ public class UserActivity extends AppCompatActivity {
 
     private void loadUser(){
 
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-
-        userViewModel.getOwnUserLiveData().observe(this, new Observer<DataResult<User>>() {
+        userViewModel.getOwnUserLiveData().observe(this, new Observer<Response<User>>() {
             @Override
-            public void onChanged(@Nullable DataResult<User> userDataResult) {
-                if (userDataResult != null && userDataResult.getDatabaseError() != null)
-                    Toast.makeText(
-                            UserActivity.this,
-                            userDataResult.getDatabaseError().getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                else if (userDataResult == null || userDataResult.getValue() == null) {
+            public void onChanged(Response<User> userResponse) {
+                if (userResponse.success) {
+                    user = userResponse.getValue();
+                    fieldLastname.setText(user.lastname);
+                    fieldName.setText(user.name);
+                    fieldComment.setText(user.comment);
+                } else {
                     user = null;
                     fieldLastname.setText(null);
                     fieldName.setText(null);
                     fieldComment.setText(null);
-                } else {
-                    user = userDataResult.getValue();
-                    fieldLastname.setText(user.getLastname());
-                    fieldName.setText(user.getNames());
-                    fieldComment.setText(user.getComment());
-                }
-            }
-        });
-
-        userViewModel.getOwnPhoneLiveData().observe(this, new Observer<DataResult<Phone>>() {
-            @Override
-            public void onChanged(@Nullable DataResult<Phone> phoneDataResult) {
-                if (phoneDataResult != null && phoneDataResult.getDatabaseError() != null)
                     Toast.makeText(
                             UserActivity.this,
-                            phoneDataResult.getDatabaseError().getMessage(),
+                            userResponse.getMessage(),
                             Toast.LENGTH_SHORT
                     ).show();
-                else if (phoneDataResult == null)
-                    phone = null;
-                else {
-                    phone = phoneDataResult.getValue();
-                    if (phone != null && phone.getShare() != null) {
-                        shareNumber.setChecked(phone.getShare());
-                        phoneNumber.setText(phone.getKey());
-                    }
                 }
             }
         });
 
+        userViewModel.getOwnPhoneLiveData().observe(this, new Observer<Response<Phone>>() {
+            @Override
+            public void onChanged(Response<Phone> phoneResponse) {
+                if (phoneResponse.success) {
+                    phone = phoneResponse.getValue();
+                    shareNumber.setChecked(phone.share);
+                    phoneNumber.setText(phone.key);
+                } else {
+                    phone = null;
+                    Toast.makeText(
+                            UserActivity.this,
+                            phoneResponse.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
     }
 
     public void updateUser(View view){
@@ -122,13 +118,13 @@ public class UserActivity extends AppCompatActivity {
 
         if (user == null)
             user = new User();
-        user.setLastname(fieldLastname.getText().toString());
-        user.setNames(fieldName.getText().toString());
-        user.setComment(fieldComment.getText().toString());
+        user.lastname = fieldLastname.getText().toString();
+        user.name = fieldName.getText().toString();
+        user.comment = fieldComment.getText().toString();
 
         if (phone == null)
             phone = new Phone();
-        phone.setShare(shareNumber.isChecked());
+        phone.share = shareNumber.isChecked();
 
         userViewModel.update(user, phone);
 

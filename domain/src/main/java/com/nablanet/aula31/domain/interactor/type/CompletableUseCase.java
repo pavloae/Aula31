@@ -1,12 +1,9 @@
 package com.nablanet.aula31.domain.interactor.type;
 
+import io.reactivex.Completable;
+
 public interface CompletableUseCase<P> {
 
-    interface Callback {
-        void onSuccess();
-        void onError(Throwable throwable);
-    }
-
-    void execute(P parameter, Callback callback);
+    Completable execute(P value);
 
 }

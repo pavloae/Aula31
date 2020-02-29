@@ -1,12 +1,12 @@
 package com.nablanet.aula31.login.dagger;
 
-import com.nablanet.aula31.core.dagger.FeatureScope;
+import com.nablanet.aula31.core.dagger.annotations.ActivityScope;
 import com.nablanet.aula31.login.PhoneAuthActivity;
 
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 
-@FeatureScope
+@ActivityScope
 @Subcomponent(modules = LoginModule.class)
 public interface LoginComponent extends AndroidInjector<PhoneAuthActivity> {
 

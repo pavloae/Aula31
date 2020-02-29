@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
-public class FireBaseRepoTest {
+public class FireBaseDataImplTest {
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();

@@ -1,4 +1,4 @@
-package com.nablanet.aula31.core.dagger;
+package com.nablanet.aula31.core.dagger.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -7,5 +7,5 @@ import javax.inject.Scope;
 
 @Scope
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FeatureScope {
+public @interface CoreScope {
 }

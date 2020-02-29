@@ -1,7 +1,7 @@
 package com.nablanet.aula31.core;
 
-import com.nablanet.aula31.core.dagger.CoreComponent;
+import com.nablanet.aula31.core.dagger.CoreSubcomponent;
 
 public interface CoreComponentProvider {
-    CoreComponent provideCoreComponent();
+    CoreSubcomponent provideCoreComponent();
 }

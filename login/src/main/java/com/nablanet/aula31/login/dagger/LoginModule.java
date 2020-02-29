@@ -1,7 +1,7 @@
 package com.nablanet.aula31.login.dagger;
 
 import com.nablanet.aula31.core.Pupi3;
-import com.nablanet.aula31.core.dagger.FeatureScope;
+import com.nablanet.aula31.core.dagger.annotations.ActivityScope;
 
 import dagger.Module;
 import dagger.Provides;
@@ -10,7 +10,7 @@ import dagger.Provides;
 public class LoginModule {
 
     @Provides
-    @FeatureScope
+    @ActivityScope
     Pupi3 providePupi3() {
         return new Pupi3(5);
     }

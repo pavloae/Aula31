@@ -2,11 +2,11 @@ package com.nablanet.aula31.core;
 
 import android.content.Context;
 
-import com.nablanet.aula31.core.dagger.CoreComponent;
+import com.nablanet.aula31.core.dagger.CoreSubcomponent;
 
 public class CoreInjectHelper {
 
-    public static CoreComponent provideCoreComponent(Context applicationContext) {
+    public static CoreSubcomponent provideCoreComponent(Context applicationContext) {
 
         if (applicationContext instanceof CoreComponentProvider)
             return ((CoreComponentProvider) applicationContext).provideCoreComponent();
