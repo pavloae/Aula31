@@ -1,5 +1,6 @@
 package com.nablanet.aula31;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import com.nablanet.aula31.core.viewmodel.Response;
 import com.nablanet.aula31.core.viewmodel.UserViewModel;
+import com.nablanet.aula31.databinding.ActivityUserBinding;
 import com.nablanet.aula31.domain.model.Phone;
 import com.nablanet.aula31.domain.model.User;
 
@@ -36,8 +38,10 @@ public class UserActivity extends DaggerAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
+        //setContentView(R.layout.activity_user);
 
+        ActivityUserBinding activityUserBinding = DataBindingUtil.setContentView(this, R.layout.activity_user);
+        activityUserBinding.setViewmodel(userViewModel);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar_user);
@@ -59,14 +63,14 @@ public class UserActivity extends DaggerAppCompatActivity {
 
     private void loadUser(){
 
-        userViewModel.getOwnUserLiveData().observe(this, new Observer<Response<User>>() {
+        userViewModel.getUser().observe(this, new Observer<Response<User>>() {
             @Override
             public void onChanged(Response<User> userResponse) {
                 if (userResponse.success) {
                     user = userResponse.getValue();
-                    fieldLastname.setText(user.lastname);
-                    fieldName.setText(user.name);
-                    fieldComment.setText(user.comment);
+                    //fieldLastname.setText(user.lastname);
+                    //fieldName.setText(user.name);
+                    //fieldComment.setText(user.comment);
                 } else {
                     user = null;
                     fieldLastname.setText(null);
@@ -81,7 +85,7 @@ public class UserActivity extends DaggerAppCompatActivity {
             }
         });
 
-        userViewModel.getOwnPhoneLiveData().observe(this, new Observer<Response<Phone>>() {
+        userViewModel.getPhone().observe(this, new Observer<Response<Phone>>() {
             @Override
             public void onChanged(Response<Phone> phoneResponse) {
                 if (phoneResponse.success) {

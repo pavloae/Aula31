@@ -30,8 +30,8 @@ public class UserViewModel extends ViewModel {
     SaveUser saveUser;
     SavePhone savePhone;
 
-    private MutableLiveData<Response<User>> userLiveData;
-    private MutableLiveData<Response<Phone>> phoneLiveData;
+    private MutableLiveData<Response<User>> user;
+    private MutableLiveData<Response<Phone>> phone;
 
     @Inject
     public UserViewModel(GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone) {
@@ -42,9 +42,9 @@ public class UserViewModel extends ViewModel {
     }
 
     @NonNull
-    public LiveData<Response<User>> getOwnUserLiveData() {
-        if (userLiveData == null)
-            userLiveData = new MutableLiveData<>();
+    public LiveData<Response<User>> getUser() {
+        if (user == null)
+            user = new MutableLiveData<>();
         getUser.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -54,20 +54,20 @@ public class UserViewModel extends ViewModel {
                     }
                     @Override
                     public void onSuccess(User user) {
-                        userLiveData.postValue(new Response<>(user, true, null));
+                        UserViewModel.this.user.postValue(new Response<>(user, true, null));
                     }
                     @Override
                     public void onError(Throwable e) {
-                        userLiveData.postValue(new Response<User>(true, e.toString()));
+                        user.postValue(new Response<User>(true, e.toString()));
                     }
                 });
-        return userLiveData;
+        return user;
     }
 
     @NonNull
-    public LiveData<Response<Phone>> getOwnPhoneLiveData() {
-        if (phoneLiveData == null)
-            phoneLiveData = new MutableLiveData<>();
+    public LiveData<Response<Phone>> getPhone() {
+        if (phone == null)
+            phone = new MutableLiveData<>();
         getPhone.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -79,16 +79,16 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess(Phone phone) {
-                        phoneLiveData.postValue(new Response<>(phone, true, null));
+                        UserViewModel.this.phone.postValue(new Response<>(phone, true, null));
 
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        phoneLiveData.postValue(new Response<Phone>(false, e.toString()));
+                        phone.postValue(new Response<Phone>(false, e.toString()));
                     }
                 });
-        return phoneLiveData;
+        return phone;
     }
 
     public void update(@Nullable User user, @Nullable Phone phone) {
