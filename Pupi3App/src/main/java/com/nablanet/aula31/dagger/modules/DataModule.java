@@ -1,5 +1,6 @@
 package com.nablanet.aula31.dagger.modules;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.nablanet.aula31.core.repository.MainRepoImpl;
 import com.nablanet.aula31.data.FireBaseDataImpl;
@@ -21,7 +22,14 @@ public class DataModule {
 
     @Provides
     @Singleton
+    FirebaseAuth provideFireBaseAuth() {
+        return FirebaseAuth.getInstance();
+    }
+
+    @Provides
+    @Singleton
     MainRepository provideMainRepository(FireBaseDataImpl fireBaseData) {
         return new MainRepoImpl(fireBaseData);
     }
+
 }

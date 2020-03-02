@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pupi3</string>
+    <string name="error_field_required" translatable="false">Este campo es reuquerido</string>
+    <string name="error_incorrect_password" translatable="false">Contraseña incorrecta</string>
+    <string name="status_verification_failed">Falló la verificación</string>
+    <string name="status_verification_succeeded">Verificación exitosa</string>
+    <string name="instant_validation">(validación instantanea)</string>
+    <string name="phone_title_text">Número de teléfono</string>
+    <string name="hint_phone_number">Número de teléfono</string>
+    <string name="start_phone_auth">Iniciar</string>
+    <string name="verify_phone_auth">Verificar</string>
+    <string name="resend_phone_auth">Reenviar</string>
+    <string name="prompt_password">Contraseña (opcional)</string>
+    <string name="error_invalid_email">Email inválido</string>
+    <string name="error_invalid_password">Contraseña demasiado corta</string>
+    <string name="status_code_sent">Código enviado</string>
+</resources>

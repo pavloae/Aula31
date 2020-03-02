@@ -1,7 +1,7 @@
-package com.nablanet.aula31.user;
+package com.nablanet.aula31;
 
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
+
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nablanet.aula31.R;
 import com.nablanet.aula31.core.viewmodel.Response;
 import com.nablanet.aula31.core.viewmodel.UserViewModel;
 import com.nablanet.aula31.domain.model.Phone;
@@ -38,6 +37,8 @@ public class UserActivity extends DaggerAppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar_user);
         setSupportActionBar(toolbar);

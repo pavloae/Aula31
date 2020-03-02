@@ -11,10 +11,10 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.nablanet.aula31.core.Pupi3;
+import com.nablanet.aula31.core.viewmodel.UserViewModel;
 import com.nablanet.aula31.courses.CourseActivity;
 import com.nablanet.aula31.export.ExportActivity;
 import com.nablanet.aula31.login.PhoneAuthActivity;
-import com.nablanet.aula31.user.UserActivity;
 
 import javax.inject.Inject;
 
@@ -26,6 +26,9 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
     Pupi3 pupi3;
+
+    @Inject
+    UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
