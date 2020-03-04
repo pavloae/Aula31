@@ -7,11 +7,11 @@ import com.nablanet.aula31.domain.repository.MainRepository;
 
 import io.reactivex.Completable;
 
-public class SaveUser implements CompletableUseCase<User> {
+public class SaveUserUseCase implements CompletableUseCase<User> {
 
     MainRepository mainRepository;
 
-    public SaveUser(MainRepository mainRepository) {
+    public SaveUserUseCase(MainRepository mainRepository) {
         this.mainRepository = mainRepository;
     }
 

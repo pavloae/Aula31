@@ -1,9 +1,6 @@
-package com.nablanet.aula31.dagger.databinding;
+package com.nablanet.aula31.databinding;
 
-import com.nablanet.aula31.ImageLoaderGlide;
 import com.nablanet.aula31.core.ImageLoader;
-
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -15,12 +12,6 @@ public class BindingModule {
     @DataBinding
     ImageBindingAdapter provideImageBindingAdapter(ImageLoader imageLoader) {
         return new ImageBindingAdapter(imageLoader);
-    }
-
-    @Provides
-    @DataBinding
-    ImageLoader provideImageLoader(){
-        return new ImageLoaderGlide();
     }
 
 }

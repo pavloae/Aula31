@@ -6,11 +6,11 @@ import com.nablanet.aula31.domain.repository.MainRepository;
 
 import io.reactivex.Completable;
 
-public class SavePhone implements CompletableUseCase<Phone> {
+public class SavePhoneUseCase implements CompletableUseCase<Phone> {
 
     MainRepository mainRepository;
 
-    public SavePhone(MainRepository mainRepository) {
+    public SavePhoneUseCase(MainRepository mainRepository) {
         this.mainRepository = mainRepository;
     }
 

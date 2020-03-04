@@ -1,4 +1,4 @@
-package com.nablanet.aula31.dagger.databinding;
+package com.nablanet.aula31.databinding;
 
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
@@ -15,9 +15,9 @@ public class ImageBindingAdapter {
         this.imageLoader = imageLoader;
     }
 
-    @BindingAdapter(value = {"imageUrl", "error"})
-    public void loadImage(ImageView view, String imageUrl, Drawable error) {
-        imageLoader.loadImage(view, imageUrl);
+    @BindingAdapter(value = {"imageUrl", "error", "placeholder"})
+    public void loadImage(ImageView view, String imageUrl, Drawable error, Drawable placeholder) {
+        imageLoader.loadImage(view, imageUrl, error, placeholder);
     }
 
 }

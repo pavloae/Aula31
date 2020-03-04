@@ -1,12 +1,16 @@
 package com.nablanet.aula31.data;
 
-import android.service.carrier.CarrierMessagingService;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nablanet.aula31.core.repository.FireBase.FireBaseData;
@@ -25,6 +29,8 @@ import io.reactivex.SingleOnSubscribe;
 public class FireBaseDataImpl implements FireBaseData {
 
     public final FirebaseDatabase dbInstance;
+    public DatabaseReference userReference;
+    public DatabaseReference phoneReference;
 
     @Inject
     public FireBaseDataImpl(FirebaseDatabase dbInstance) {
@@ -33,10 +39,16 @@ public class FireBaseDataImpl implements FireBaseData {
 
     @Override
     public Single<User> getUser() {
+
+        if (userReference == null) {
+            userReference = dbInstance.getReference("users").child(getUid());
+            userReference.keepSynced(true);
+        }
+
         return Single.create(new SingleOnSubscribe<User>() {
             @Override
             public void subscribe(final SingleEmitter<User> emitter) throws Exception {
-                dbInstance.getReference("users").child(getUid())
+                userReference
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -54,14 +66,20 @@ public class FireBaseDataImpl implements FireBaseData {
 
     @Override
     public Single<Phone> getPhone() {
+        if (phoneReference == null) {
+            phoneReference = dbInstance.getReference("phones").child(getOwnPhoneId());
+            phoneReference.keepSynced(true);
+        }
         return Single.create(new SingleOnSubscribe<Phone>() {
             @Override
             public void subscribe(final SingleEmitter<Phone> emitter) throws Exception {
-                dbInstance.getReference("phones").child(getOwnPhoneId())
+                phoneReference
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 Phone phone = new SnapshotFactory<>(Phone.class).toValue(dataSnapshot);
+                                if (phone != null)
+                                    phone.key = dataSnapshot.getKey();
                                 emitter.onSuccess(phone);
                             }
 
@@ -75,31 +93,33 @@ public class FireBaseDataImpl implements FireBaseData {
     }
 
     @Override
-    public Completable saveUser(User user) {
+    public Completable saveUser(@NonNull final User user) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) throws Exception {
-                emitter.onError(new Throwable("No implementado aún"));
+                dbInstance.getReference("users").child(getUid())
+                        .setValue(user);
             }
         });
     }
 
     @Override
-    public Completable savePhone(Phone phone) {
+    public Completable savePhone(@NonNull final Phone phone) {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) throws Exception {
-                emitter.onError(new Throwable("No implementado aún"));
+                dbInstance.getReference("phones").child(phone.key).child("share")
+                        .setValue(phone.share);
             }
         });
     }
 
 
-    public String getUid(){
+    private String getUid(){
         return FirebaseAuth.getInstance().getUid();
     }
 
-    public String getOwnPhoneId() {
+    private String getOwnPhoneId() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
             return null;
         return FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();

@@ -5,7 +5,7 @@ public class User {
     public String key;
 
     public String lastname;
-    public String name;
+    public String names;
     public String comment;
     public String url_image;
 

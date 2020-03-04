@@ -1,4 +1,4 @@
-package com.nablanet.aula31.dagger.databinding;
+package com.nablanet.aula31.databinding;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

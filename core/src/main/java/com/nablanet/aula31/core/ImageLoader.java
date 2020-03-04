@@ -9,4 +9,6 @@ public interface ImageLoader {
 
     void loadImage(ImageView imageView, String imageUrl, Drawable error);
 
+    void loadImage(ImageView imageView, String imageUrl, Drawable error, Drawable placeholder);
+
 }

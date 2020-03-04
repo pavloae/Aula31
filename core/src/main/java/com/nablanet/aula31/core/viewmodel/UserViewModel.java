@@ -1,15 +1,13 @@
 package com.nablanet.aula31.core.viewmodel;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.nablanet.aula31.domain.interactor.phones.GetPhone;
-import com.nablanet.aula31.domain.interactor.phones.SavePhone;
-import com.nablanet.aula31.domain.interactor.users.GetUser;
-import com.nablanet.aula31.domain.interactor.users.SaveUser;
+import com.nablanet.aula31.domain.interactor.phones.GetPhoneUseCase;
+import com.nablanet.aula31.domain.interactor.phones.SavePhoneUseCase;
+import com.nablanet.aula31.domain.interactor.users.GetUserUseCase;
+import com.nablanet.aula31.domain.interactor.users.SaveUserUseCase;
 import com.nablanet.aula31.domain.model.User;
 import com.nablanet.aula31.domain.model.Phone;
 
@@ -23,31 +21,36 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserViewModel extends ViewModel {
 
-    GetUser getUser;
-    GetPhone getPhone;
-    SaveUser saveUser;
-    SavePhone savePhone;
+    GetUserUseCase getUserUseCase;
+    GetPhoneUseCase getPhoneUseCase;
+    SaveUserUseCase saveUserUseCase;
+    SavePhoneUseCase savePhoneUseCase;
 
-    private MutableLiveData<User> user;
-    public MutableLiveData<String> profileImageUrl = new MutableLiveData<>();
-    private MutableLiveData<Phone> phone;
-    private MutableLiveData<Response> response;
+    private MutableLiveData<User> user = new MutableLiveData<>();
+    public MutableLiveData<String> lastname = new MutableLiveData<>();
+    public MutableLiveData<String> names = new MutableLiveData<>();
+    public MutableLiveData<String> comment = new MutableLiveData<>();
+    public MutableLiveData<String> imageUrl = new MutableLiveData<>();
+
+    private MutableLiveData<Phone> phone = new MutableLiveData<>();
+    public MutableLiveData<String> phoneNumber = new MutableLiveData<>();
+    public MutableLiveData<Boolean> shared = new MutableLiveData<>();
+
+    public MutableLiveData<Response> response = new MutableLiveData<>();
 
     @Inject
     public UserViewModel(
-            GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone
+            GetUserUseCase getUserUseCase, GetPhoneUseCase getPhoneUseCase,
+            SaveUserUseCase saveUserUseCase, SavePhoneUseCase savePhoneUseCase
     ) {
-        this.getUser = getUser;
-        this.getPhone = getPhone;
-        this.saveUser = saveUser;
-        this.savePhone = savePhone;
+        this.getUserUseCase = getUserUseCase;
+        this.getPhoneUseCase = getPhoneUseCase;
+        this.saveUserUseCase = saveUserUseCase;
+        this.savePhoneUseCase = savePhoneUseCase;
     }
 
-    @NonNull
-    public LiveData<User> getUser() {
-        if (user == null)
-            user = new MutableLiveData<>();
-        getUser.execute()
+    public void fetchUser() {
+        getUserUseCase.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<User>() {
@@ -56,23 +59,23 @@ public class UserViewModel extends ViewModel {
                     }
                     @Override
                     public void onSuccess(User user) {
+                        UserViewModel.this.user.postValue(user);
                         if (user != null) {
-                            UserViewModel.this.user.postValue(user);
-                            UserViewModel.this.profileImageUrl.postValue(user.url_image);
+                            lastname.setValue(user.lastname);
+                            names.setValue(user.names);
+                            comment.setValue(user.comment);
+                            imageUrl.setValue(user.url_image);
                         }
                     }
                     @Override
                     public void onError(Throwable e) {
+                        response.postValue(new Response(false, e.toString()));
                     }
                 });
-        return user;
     }
 
-    @NonNull
-    public LiveData<Phone> getPhone() {
-        if (phone == null)
-            phone = new MutableLiveData<>();
-        getPhone.execute()
+    public void fetchPhone() {
+        getPhoneUseCase.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<Phone>() {
@@ -83,28 +86,41 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess(Phone phone) {
-                        if (phone != null)
-                            UserViewModel.this.phone.postValue(phone);
+                        UserViewModel.this.phone.postValue(phone);
+                        if (phone != null) {
+                            phoneNumber.setValue(phone.key);
+                            shared.setValue(phone.share);
+                        }
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        response.postValue(new Response(false, e.toString()));
                     }
                 });
-        return phone;
     }
 
-    @NonNull
-    public MutableLiveData<Response> getResponse() {
-        if (response == null)
-            response = new MutableLiveData<>();
-        return response;
+    public void update() {
+
+        User user = this.user.getValue();
+        if (user != null)
+            save(user);
+
+        Phone phone = this.phone.getValue();
+        if (phone != null)
+            save(phone);
+
+        fetchUser();
+        fetchPhone();
+
     }
 
+    private void save(@NonNull User user) {
+        user.lastname = lastname.getValue();
+        user.names = names.getValue();
+        user.comment = comment.getValue();
 
-    public void update(@Nullable User user, @Nullable Phone phone) {
-
-        saveUser.execute(user)
+        saveUserUseCase.execute(user)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {
@@ -120,17 +136,22 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        getResponse().postValue(new Response(false, e.toString()));
+                        response.postValue(new Response(false, e.toString()));
                     }
                 });
 
-        savePhone.execute(phone)
+    }
+
+    private void save(@NonNull Phone phone) {
+
+        phone.share = shared.getValue();
+
+        savePhoneUseCase.execute(phone)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
                     }
 
                     @Override
@@ -140,10 +161,9 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        getResponse().postValue(new Response(false, e.toString()));
+                        response.postValue(new Response(false, e.toString()));
                     }
                 });
-
     }
 
 }

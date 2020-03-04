@@ -5,6 +5,6 @@ public class Phone {
     public String key;
 
     public String uid;
-    public boolean share;
+    public Boolean share;
 
 }

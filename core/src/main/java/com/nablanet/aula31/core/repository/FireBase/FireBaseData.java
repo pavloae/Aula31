@@ -1,5 +1,7 @@
 package com.nablanet.aula31.core.repository.FireBase;
 
+import androidx.annotation.NonNull;
+
 import com.nablanet.aula31.domain.model.Phone;
 import com.nablanet.aula31.domain.model.User;
 
@@ -10,7 +12,7 @@ public interface FireBaseData {
 
     Single<User> getUser();
     Single<Phone> getPhone();
-    Completable saveUser(User user);
-    Completable savePhone(Phone phone);
+    Completable saveUser(@NonNull User user);
+    Completable savePhone(@NonNull Phone phone);
 
 }

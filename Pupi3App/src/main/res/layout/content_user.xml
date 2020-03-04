@@ -2,9 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+
         <variable
             name="viewmodel"
             type="com.nablanet.aula31.core.viewmodel.UserViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,8 +28,10 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:contentDescription="@string/urlImage"
-                app:imageUrl="@{viewmodel.profileImageUrl}"
-                app:error="@{@drawable/smartphone}"/>
+                android:onClick="selectImage"
+                app:imageUrl="@{viewmodel.imageUrl}"
+                app:error="@{@drawable/smartphone}"
+                app:placeholder="@{@drawable/profile_icon}"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,7 +45,8 @@
                     android:hint="@string/lastname"
                     android:layout_weight="1.0"
                     android:inputType="textCapSentences"
-                    android:text="@{viewmodel.user.lastname}"
+                    android:text="@={viewmodel.lastname}"
+                    android:maxLength="20"
                     tools:ignore="Autofill" />
 
                 <EditText
@@ -51,7 +56,8 @@
                     android:hint="@string/names"
                     android:layout_weight="1.0"
                     android:inputType="textCapSentences"
-                    android:text="@{viewmodel.user.name}"
+                    android:text="@={viewmodel.names}"
+                    android:maxLength="20"
                     tools:ignore="Autofill" />
 
                 <EditText
@@ -61,7 +67,8 @@
                     android:hint="@string/comment"
                     android:layout_weight="1.0"
                     android:inputType="textCapSentences"
-                    android:text="@{viewmodel.user.comment}"
+                    android:text="@={viewmodel.comment}"
+                    android:maxLength="50"
                     tools:ignore="Autofill" />
 
                 <RelativeLayout
@@ -74,7 +81,7 @@
                         android:layout_height="24dp"
                         android:layout_centerVertical="true"
                         android:src="@drawable/smartphone"
-                        android:contentDescription="@string/phone_image" />
+                        android:contentDescription="@string/phone_image"/>
 
 
                     <TextView
@@ -87,6 +94,7 @@
                         android:layout_toRightOf="@+id/phone_image"
                         android:layout_toLeftOf="@+id/share_box"
                         android:paddingStart="8dp"
+                        android:text="@{viewmodel.phoneNumber}"
                         tools:ignore="RtlSymmetry"
                         android:layout_toEndOf="@+id/phone_image"
                         android:layout_toStartOf="@+id/share_box" />
@@ -100,6 +108,7 @@
                         android:layout_alignParentRight="true"
                         android:text="Publicar"
                         android:layout_marginEnd="8dp"
+                        android:checked="@={viewmodel.shared}"
                         android:layout_alignParentEnd="true" />
 
                 </RelativeLayout>

@@ -2,10 +2,6 @@ package com.nablanet.aula31.core.dagger.modules;
 
 import com.nablanet.aula31.core.Pupi3;
 import com.nablanet.aula31.core.dagger.annotations.CoreScope;
-import com.nablanet.aula31.domain.interactor.users.GetUser;
-import com.nablanet.aula31.domain.repository.MainRepository;
-
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;

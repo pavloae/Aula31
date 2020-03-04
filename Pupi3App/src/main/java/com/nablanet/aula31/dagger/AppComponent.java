@@ -1,11 +1,11 @@
 package com.nablanet.aula31.dagger;
 
 import com.nablanet.aula31.MainApp;
+import com.nablanet.aula31.databinding.BindingSubcomponent;
 import com.nablanet.aula31.dagger.modules.DataModule;
 import com.nablanet.aula31.dagger.modules.ActivityBuilderModule;
 import com.nablanet.aula31.dagger.modules.AppModule;
 import com.nablanet.aula31.dagger.modules.DomainModule;
-import com.nablanet.aula31.dagger.databinding.BindingModule;
 
 import javax.inject.Singleton;
 
@@ -25,5 +25,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
 public interface AppComponent extends AndroidInjector<MainApp> {
 
     void inject(MainApp mainApp);
+
+    BindingSubcomponent.Factory getBindingComponentFactory();
 
 }

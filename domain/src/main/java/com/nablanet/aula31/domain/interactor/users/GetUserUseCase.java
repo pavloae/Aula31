@@ -6,11 +6,11 @@ import com.nablanet.aula31.domain.repository.MainRepository;
 
 import io.reactivex.Single;
 
-public class GetUser implements SingleUseCase<User> {
+public class GetUserUseCase implements SingleUseCase<User> {
 
     MainRepository mainRepository;
 
-    public GetUser(MainRepository mainRepository) {
+    public GetUserUseCase(MainRepository mainRepository) {
         this.mainRepository = mainRepository;
     }
 
