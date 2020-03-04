@@ -24,9 +24,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class UserActivity extends DaggerAppCompatActivity {
 
-    ImageView userImage;
     EditText fieldLastname, fieldName, fieldComment;
-    TextView phoneNumber;
     CheckBox shareNumber;
 
     User user;
@@ -38,11 +36,10 @@ public class UserActivity extends DaggerAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_user);
 
         ActivityUserBinding activityUserBinding = DataBindingUtil.setContentView(this, R.layout.activity_user);
+        activityUserBinding.setLifecycleOwner(this);
         activityUserBinding.setViewmodel(userViewModel);
-
 
         Toolbar toolbar = findViewById(R.id.toolbar_user);
         setSupportActionBar(toolbar);
@@ -50,58 +47,6 @@ public class UserActivity extends DaggerAppCompatActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        userImage = findViewById(R.id.pupil_image);
-        fieldLastname = findViewById(R.id.lastname_et);
-        fieldName = findViewById(R.id.name_et);
-        fieldComment = findViewById(R.id.comment_et);
-        phoneNumber = findViewById(R.id.phone_tv);
-        shareNumber = findViewById(R.id.share_box);
-
-        loadUser();
-
-    }
-
-    private void loadUser(){
-
-        userViewModel.getUser().observe(this, new Observer<Response<User>>() {
-            @Override
-            public void onChanged(Response<User> userResponse) {
-                if (userResponse.success) {
-                    user = userResponse.getValue();
-                    //fieldLastname.setText(user.lastname);
-                    //fieldName.setText(user.name);
-                    //fieldComment.setText(user.comment);
-                } else {
-                    user = null;
-                    fieldLastname.setText(null);
-                    fieldName.setText(null);
-                    fieldComment.setText(null);
-                    Toast.makeText(
-                            UserActivity.this,
-                            userResponse.getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                }
-            }
-        });
-
-        userViewModel.getPhone().observe(this, new Observer<Response<Phone>>() {
-            @Override
-            public void onChanged(Response<Phone> phoneResponse) {
-                if (phoneResponse.success) {
-                    phone = phoneResponse.getValue();
-                    shareNumber.setChecked(phone.share);
-                    phoneNumber.setText(phone.key);
-                } else {
-                    phone = null;
-                    Toast.makeText(
-                            UserActivity.this,
-                            phoneResponse.getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                }
-            }
-        });
     }
 
     public void updateUser(View view){

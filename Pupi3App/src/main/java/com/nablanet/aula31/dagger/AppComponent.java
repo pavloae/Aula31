@@ -5,6 +5,7 @@ import com.nablanet.aula31.dagger.modules.DataModule;
 import com.nablanet.aula31.dagger.modules.ActivityBuilderModule;
 import com.nablanet.aula31.dagger.modules.AppModule;
 import com.nablanet.aula31.dagger.modules.DomainModule;
+import com.nablanet.aula31.dagger.databinding.BindingModule;
 
 import javax.inject.Singleton;
 

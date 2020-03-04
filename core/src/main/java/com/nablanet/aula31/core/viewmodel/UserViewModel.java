@@ -1,7 +1,5 @@
 package com.nablanet.aula31.core.viewmodel;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -30,11 +28,15 @@ public class UserViewModel extends ViewModel {
     SaveUser saveUser;
     SavePhone savePhone;
 
-    private MutableLiveData<Response<User>> user;
-    private MutableLiveData<Response<Phone>> phone;
+    private MutableLiveData<User> user;
+    public MutableLiveData<String> profileImageUrl = new MutableLiveData<>();
+    private MutableLiveData<Phone> phone;
+    private MutableLiveData<Response> response;
 
     @Inject
-    public UserViewModel(GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone) {
+    public UserViewModel(
+            GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone
+    ) {
         this.getUser = getUser;
         this.getPhone = getPhone;
         this.saveUser = saveUser;
@@ -42,7 +44,7 @@ public class UserViewModel extends ViewModel {
     }
 
     @NonNull
-    public LiveData<Response<User>> getUser() {
+    public LiveData<User> getUser() {
         if (user == null)
             user = new MutableLiveData<>();
         getUser.execute()
@@ -54,18 +56,20 @@ public class UserViewModel extends ViewModel {
                     }
                     @Override
                     public void onSuccess(User user) {
-                        UserViewModel.this.user.postValue(new Response<>(user, true, null));
+                        if (user != null) {
+                            UserViewModel.this.user.postValue(user);
+                            UserViewModel.this.profileImageUrl.postValue(user.url_image);
+                        }
                     }
                     @Override
                     public void onError(Throwable e) {
-                        user.postValue(new Response<User>(true, e.toString()));
                     }
                 });
         return user;
     }
 
     @NonNull
-    public LiveData<Response<Phone>> getPhone() {
+    public LiveData<Phone> getPhone() {
         if (phone == null)
             phone = new MutableLiveData<>();
         getPhone.execute()
@@ -79,17 +83,24 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess(Phone phone) {
-                        UserViewModel.this.phone.postValue(new Response<>(phone, true, null));
-
+                        if (phone != null)
+                            UserViewModel.this.phone.postValue(phone);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        phone.postValue(new Response<Phone>(false, e.toString()));
                     }
                 });
         return phone;
     }
+
+    @NonNull
+    public MutableLiveData<Response> getResponse() {
+        if (response == null)
+            response = new MutableLiveData<>();
+        return response;
+    }
+
 
     public void update(@Nullable User user, @Nullable Phone phone) {
 
@@ -109,7 +120,7 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d("ERROR", e.getMessage());
+                        getResponse().postValue(new Response(false, e.toString()));
                     }
                 });
 
@@ -129,7 +140,7 @@ public class UserViewModel extends ViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d("ERROR", e.getMessage());
+                        getResponse().postValue(new Response(false, e.toString()));
                     }
                 });
 

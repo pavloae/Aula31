@@ -2,6 +2,7 @@ package com.nablanet.aula31.core.dagger.modules;
 
 import androidx.lifecycle.ViewModel;
 
+import com.nablanet.aula31.core.ImageLoader;
 import com.nablanet.aula31.core.dagger.annotations.CoreScope;
 import com.nablanet.aula31.core.dagger.annotations.ViewModelKey;
 import com.nablanet.aula31.core.viewmodel.UserViewModel;
@@ -21,7 +22,9 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(UserViewModel.class)
     @CoreScope
-    ViewModel provideMainViewModel(GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone) {
+    ViewModel provideMainViewModel(
+            GetUser getUser, GetPhone getPhone, SaveUser saveUser, SavePhone savePhone
+    ) {
         return new UserViewModel(getUser, getPhone, saveUser, savePhone);
     }
 
