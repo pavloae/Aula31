@@ -2,6 +2,7 @@ package com.nablanet.aula31.core.dagger.modules;
 
 import androidx.lifecycle.ViewModel;
 
+import com.nablanet.aula31.core.ImageConverter;
 import com.nablanet.aula31.core.dagger.annotations.CoreScope;
 import com.nablanet.aula31.core.dagger.annotations.ViewModelKey;
 import com.nablanet.aula31.core.viewmodel.UserViewModel;
@@ -22,9 +23,13 @@ public class ViewModelModule {
     @ViewModelKey(UserViewModel.class)
     @CoreScope
     ViewModel provideMainViewModel(
-            GetUserUseCase getUserUseCase, GetPhoneUseCase getPhoneUseCase, SaveUserUseCase saveUserUseCase, SavePhoneUseCase savePhoneUseCase
+            GetUserUseCase getUserUseCase, GetPhoneUseCase getPhoneUseCase,
+            SaveUserUseCase saveUserUseCase, SavePhoneUseCase savePhoneUseCase,
+            ImageConverter imageConverter
     ) {
-        return new UserViewModel(getUserUseCase, getPhoneUseCase, saveUserUseCase, savePhoneUseCase);
+        return new UserViewModel(
+                getUserUseCase, getPhoneUseCase, saveUserUseCase, savePhoneUseCase, imageConverter
+        );
     }
 
 }

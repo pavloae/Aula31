@@ -1,9 +1,15 @@
 package com.nablanet.aula31.core.viewmodel;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.nablanet.aula31.core.ImageConverter;
+import com.nablanet.aula31.core.utils.UriConverter;
+import com.nablanet.aula31.domain.RequestUploadFile;
+import com.nablanet.aula31.domain.ResultUploadFile;
 import com.nablanet.aula31.domain.interactor.phones.GetPhoneUseCase;
 import com.nablanet.aula31.domain.interactor.phones.SavePhoneUseCase;
 import com.nablanet.aula31.domain.interactor.users.GetUserUseCase;
@@ -11,9 +17,14 @@ import com.nablanet.aula31.domain.interactor.users.SaveUserUseCase;
 import com.nablanet.aula31.domain.model.User;
 import com.nablanet.aula31.domain.model.Phone;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
+import io.reactivex.Observer;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -25,6 +36,7 @@ public class UserViewModel extends ViewModel {
     GetPhoneUseCase getPhoneUseCase;
     SaveUserUseCase saveUserUseCase;
     SavePhoneUseCase savePhoneUseCase;
+    ImageConverter imageConverter;
 
     private MutableLiveData<User> user = new MutableLiveData<>();
     public MutableLiveData<String> lastname = new MutableLiveData<>();
@@ -37,16 +49,19 @@ public class UserViewModel extends ViewModel {
     public MutableLiveData<Boolean> shared = new MutableLiveData<>();
 
     public MutableLiveData<Response> response = new MutableLiveData<>();
+    public MutableLiveData<ResultUploadFile> progress = new MutableLiveData<>();
 
     @Inject
     public UserViewModel(
             GetUserUseCase getUserUseCase, GetPhoneUseCase getPhoneUseCase,
-            SaveUserUseCase saveUserUseCase, SavePhoneUseCase savePhoneUseCase
+            SaveUserUseCase saveUserUseCase, SavePhoneUseCase savePhoneUseCase,
+            ImageConverter imageConverter
     ) {
         this.getUserUseCase = getUserUseCase;
         this.getPhoneUseCase = getPhoneUseCase;
         this.saveUserUseCase = saveUserUseCase;
         this.savePhoneUseCase = savePhoneUseCase;
+        this.imageConverter = imageConverter;
     }
 
     public void fetchUser() {
@@ -115,10 +130,56 @@ public class UserViewModel extends ViewModel {
 
     }
 
+    public void saveImageProfile(@NonNull Uri uri) {
+
+        String path = "profile"+ File.separator + uri.getLastPathSegment();
+
+        URI jUri;
+        try {
+            jUri = UriConverter.getURI(uri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            response.setValue(new Response(false, e.getMessage()));
+            return;
+        }
+
+        saveUserUseCase.saveFile(new RequestUploadFile(path, jUri))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<ResultUploadFile>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        progress.setValue(new ResultUploadFile(0, 0));
+                    }
+
+                    @Override
+                    public void onNext(ResultUploadFile resultUploadFile) {
+                        progress.setValue(resultUploadFile);
+                        if (resultUploadFile.complete)
+                            imageUrl.setValue(resultUploadFile.url.toString());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        response.setValue(new Response(false, e.getMessage()));
+                        progress.setValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        progress.setValue(null);
+                        response.setValue(new Response(true, "Imagen cargada!"));
+                    }
+                });
+
+    }
+
     private void save(@NonNull User user) {
+
         user.lastname = lastname.getValue();
         user.names = names.getValue();
         user.comment = comment.getValue();
+        user.url_image = imageUrl.getValue();
 
         saveUserUseCase.execute(user)
                 .subscribeOn(Schedulers.io())
